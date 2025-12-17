@@ -16,20 +16,20 @@ export default async function SubjectsPage() {
   const subjects = await getSubjects()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <header className="border-b border-slate-700 bg-slate-800/50 backdrop-blur">
+    <div className="min-h-screen bg-slate-50">
+      <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-200">
+              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-slate-50">Subjects</h1>
+            <h1 className="text-2xl font-semibold text-slate-900">Subjects</h1>
           </div>
           <Link href="/admin/subjects/create">
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               <Plus className="mr-2 h-4 w-4" />
               Add Subject
             </Button>
