@@ -32,8 +32,8 @@ export function FacultyList({ faculty }: FacultyListProps) {
 
   if (faculty.length === 0) {
     return (
-      <Card className="border-slate-700 bg-slate-800/50">
-        <CardContent className="p-8 text-center text-slate-400">
+      <Card className="border-slate-200 bg-white shadow-sm">
+        <CardContent className="p-8 text-center text-slate-600">
           No faculty members found. Click "Add Faculty" to create one.
         </CardContent>
       </Card>
@@ -43,17 +43,17 @@ export function FacultyList({ faculty }: FacultyListProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {faculty.map((item) => (
-        <Card key={item.id} className="border-slate-700 bg-slate-800/50">
+        <Card key={item.id} className="border-slate-200 bg-white shadow-sm">
           <CardHeader>
-            <CardTitle className="text-slate-50">{item.faculty_name}</CardTitle>
-            <CardDescription className="text-slate-400">Code: {item.short_code}</CardDescription>
+            <CardTitle className="text-slate-900">{item.faculty_name}</CardTitle>
+            <CardDescription className="text-slate-600">Code: {item.short_code}</CardDescription>
           </CardHeader>
           <CardContent className="flex gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => router.push(`/admin/faculty/${item.id}/edit`)}
-              className="border-slate-600 text-slate-200 hover:bg-slate-700"
+              className="border-slate-300 text-slate-700 hover:bg-slate-100"
             >
               <Pencil className="h-4 w-4 mr-1" />
               Edit

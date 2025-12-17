@@ -88,10 +88,10 @@ export function BatchesManager({ batches, courseTypes }: BatchesManagerProps) {
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
-      <Card className="border-slate-700 bg-slate-800/50">
+      <Card className="border-slate-200 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle className="text-slate-50">Batches</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardTitle className="text-slate-900">Batches</CardTitle>
+          <CardDescription className="text-slate-600">
             Manage student batches (e.g., A, B, C)
           </CardDescription>
         </CardHeader>
@@ -104,29 +104,29 @@ export function BatchesManager({ batches, courseTypes }: BatchesManagerProps) {
                 value={newBatch}
                 onChange={(e) => setNewBatch(e.target.value)}
                 placeholder="Enter batch name (e.g., A, B)"
-                className="border-slate-600 bg-slate-900 text-slate-50"
+                  className="border-slate-300 bg-white text-slate-900 focus:border-blue-600 focus:ring-blue-600"
               />
             </div>
-            <Button 
-              type="submit" 
-              disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
           </form>
 
           <div className="space-y-2">
             {batches.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-4">No batches yet</p>
+                <p className="text-sm text-slate-600 text-center py-4">No batches yet</p>
             ) : (
               batches.map((batch) => (
                 <div
                   key={batch.id}
-                  className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900/50 p-3"
+                    className="flex items-center justify-between rounded-lg border border-slate-300 bg-white p-3"
                 >
-                  <span className="text-slate-200">{batch.batch_name}</span>
+                    <span className="text-slate-900">{batch.batch_name}</span>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -143,10 +143,10 @@ export function BatchesManager({ batches, courseTypes }: BatchesManagerProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-slate-700 bg-slate-800/50">
+      <Card className="border-slate-200 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle className="text-slate-50">Course Types</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardTitle className="text-slate-900">Course Types</CardTitle>
+          <CardDescription className="text-slate-600">
             Manage course types (e.g., Theory, Lab, Tutorial)
           </CardDescription>
         </CardHeader>
@@ -159,29 +159,29 @@ export function BatchesManager({ batches, courseTypes }: BatchesManagerProps) {
                 value={newCourseType}
                 onChange={(e) => setNewCourseType(e.target.value)}
                 placeholder="Enter course type (e.g., Theory)"
-                className="border-slate-600 bg-slate-900 text-slate-50"
+                  className="border-slate-300 bg-white text-slate-900 focus:border-blue-600 focus:ring-blue-600"
               />
             </div>
-            <Button 
-              type="submit" 
-              disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
           </form>
 
           <div className="space-y-2">
             {courseTypes.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-4">No course types yet</p>
+                <p className="text-sm text-slate-600 text-center py-4">No course types yet</p>
             ) : (
               courseTypes.map((courseType) => (
                 <div
                   key={courseType.id}
-                  className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900/50 p-3"
+                    className="flex items-center justify-between rounded-lg border border-slate-300 bg-white p-3"
                 >
-                  <span className="text-slate-200">{courseType.course_type_name}</span>
+                    <span className="text-slate-900">{courseType.course_type_name}</span>
                   <Button
                     size="sm"
                     variant="ghost"
