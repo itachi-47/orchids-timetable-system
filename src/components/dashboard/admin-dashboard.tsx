@@ -73,29 +73,17 @@ export function AdminDashboard({ user }: { user: User }) {
             </Card>
           </Link>
 
-          <Link href="/admin/batches">
-            <Card className="cursor-pointer border-slate-700 bg-slate-800/50 backdrop-blur transition-all hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20">
-              <CardHeader>
-                <School className="mb-2 h-8 w-8 text-purple-400" />
-                <CardTitle className="text-slate-50">Batches</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Manage student batches
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-
-          <Link href="/admin/course-types">
-            <Card className="cursor-pointer border-slate-700 bg-slate-800/50 backdrop-blur transition-all hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20">
-              <CardHeader>
-                <Grid3x3 className="mb-2 h-8 w-8 text-purple-400" />
-                <CardTitle className="text-slate-50">Course Types</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Manage course categories
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
+            <Link href="/admin/batches">
+              <Card className="cursor-pointer border-slate-700 bg-slate-800/50 backdrop-blur transition-all hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20">
+                <CardHeader>
+                  <School className="mb-2 h-8 w-8 text-purple-400" />
+                  <CardTitle className="text-slate-50">Batches & Course Types</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Manage batches and course categories
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
 
           <Link href="/admin/timetable">
             <Card className="cursor-pointer border-slate-700 bg-slate-800/50 backdrop-blur transition-all hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20">
