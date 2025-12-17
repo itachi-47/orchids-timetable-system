@@ -3,19 +3,19 @@ import { TimetableGrid } from '@/components/timetable/timetable-grid'
 import Link from 'next/link'
 import { ArrowLeft, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { createClient } from '@/lib/supabase/server'
+import { getBatches } from '@/lib/batches/actions'
+import { getSubjects } from '@/lib/subjects/actions'
+import { getFaculty } from '@/lib/faculty/actions'
+import { getRooms } from '@/lib/rooms/actions'
 
 export default async function TimetablePage() {
-  const supabase = await createClient()
-
-  const [{ data: batches }, { data: subjects }, { data: faculty }, { data: rooms }] = await Promise.all([
-    supabase.from('batches').select('*'),
-    supabase.from('subjects').select('id, subject_code, subject_name, category, classes_per_week'),
-    supabase.from('faculty').select('id, faculty_name, short_code'),
-    supabase.from('rooms').select('id, room_number'),
+  const [batches, subjects, faculty, rooms, timetableData] = await Promise.all([
+    getBatches(),
+    getSubjects(),
+    getFaculty(),
+    getRooms(),
+    getTimetable(),
   ])
-
-  const timetableData = await getTimetable()
 
   const groupedByBatch = (batches || []).map(batch => ({
     batch,

@@ -1,29 +1,46 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/mongodb/client'
+import { randomUUID } from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { TimetableGenerator } from './generator'
-import type { Batch, Conflict, Faculty, Room, Subject, TimetableSlot } from './types'
+import type { Batch, Conflict, Faculty, Room, Subject, TimetableEntry, TimetableSlot } from './types'
+
+const DAY_ORDER: TimetableSlot['day_of_week'][] = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
+
+const TIME_ORDER: TimetableSlot['time_slot'][] = [
+  '09:00-10:00',
+  '10:00-11:00',
+  '11:00-12:00',
+  '12:00-13:00',
+  '13:00-14:00',
+  '14:00-15:00',
+  '15:00-16:00',
+  '16:00-17:00',
+]
+
+function sortEntries(a: TimetableSlot, b: TimetableSlot) {
+  const dayDiff = DAY_ORDER.indexOf(a.day_of_week) - DAY_ORDER.indexOf(b.day_of_week)
+  if (dayDiff !== 0) return dayDiff
+  return TIME_ORDER.indexOf(a.time_slot) - TIME_ORDER.indexOf(b.time_slot)
+}
 
 export async function generateTimetable(subjectFacultyMapping: Record<string, string[]>) {
-  const supabase = await createClient()
+  const db = await getDb()
 
-  const [subjectsRes, facultyRes, roomsRes, batchesRes] = await Promise.all([
-    supabase.from('subjects').select('*'),
-    supabase.from('faculty').select('*'),
-    supabase.from('rooms').select('*'),
-    supabase.from('batches').select('*'),
+  const [subjects, faculty, rooms, batches] = await Promise.all([
+    db.collection<Subject>('subjects').find({}, { projection: { _id: 0 } }).toArray(),
+    db.collection<Faculty>('faculty').find({}, { projection: { _id: 0 } }).toArray(),
+    db.collection<Room>('rooms').find({}, { projection: { _id: 0 } }).toArray(),
+    db.collection<Batch>('batches').find({}, { projection: { _id: 0 } }).toArray(),
   ])
-
-  if (subjectsRes.error) throw subjectsRes.error
-  if (facultyRes.error) throw facultyRes.error
-  if (roomsRes.error) throw roomsRes.error
-  if (batchesRes.error) throw batchesRes.error
-
-  const subjects: Subject[] = subjectsRes.data
-  const faculty: Faculty[] = facultyRes.data
-  const rooms: Room[] = roomsRes.data
-  const batches: Batch[] = batchesRes.data
 
   const subjectFacultyMap = new Map<string, string[]>(Object.entries(subjectFacultyMapping))
 
@@ -32,14 +49,16 @@ export async function generateTimetable(subjectFacultyMapping: Record<string, st
   const timetableSlots = generator.generate()
   const conflicts = generator.getConflicts()
 
-  await supabase
-    .from('timetables')
-    .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000')
+  await db.collection('timetables').deleteMany({})
 
   if (timetableSlots.length > 0) {
-    const { error } = await supabase.from('timetables').insert(timetableSlots)
-    if (error) throw error
+    await db.collection('timetables').insertMany(
+      timetableSlots.map(slot => ({
+        ...slot,
+        id: randomUUID(),
+        created_at: new Date().toISOString(),
+      }))
+    )
   }
 
   revalidatePath('/admin/timetable')
@@ -53,41 +72,44 @@ export async function generateTimetable(subjectFacultyMapping: Record<string, st
   }
 }
 
-export async function getTimetable(batchId?: string) {
-  const supabase = await createClient()
+export async function getTimetable(batchId?: string): Promise<TimetableEntry[]> {
+  const db = await getDb()
 
-  let query = supabase
-    .from('timetables')
-    .select(`
-        *,
-        subject:subjects(id, subject_code, subject_name, category, classes_per_week),
-        faculty:faculty(id, faculty_name, short_code),
-        room:rooms(id, room_number),
-        batch:batches(id, batch_name)
-      `)
-    .order('day_of_week')
-    .order('time_slot')
+  const query = batchId ? { batch_id: batchId } : {}
 
-  if (batchId) {
-    query = query.eq('batch_id', batchId)
-  }
+  const [slots, subjects, faculty, rooms, batches] = await Promise.all([
+    db
+      .collection<TimetableSlot & { id: string }>('timetables')
+      .find(query, { projection: { _id: 0 } })
+      .toArray(),
+    db.collection<Subject>('subjects').find({}, { projection: { _id: 0 } }).toArray(),
+    db.collection<Faculty>('faculty').find({}, { projection: { _id: 0 } }).toArray(),
+    db.collection<Room>('rooms').find({}, { projection: { _id: 0 } }).toArray(),
+    db.collection<Batch>('batches').find({}, { projection: { _id: 0 } }).toArray(),
+  ])
 
-  const { data, error } = await query
+  const subjectMap = new Map(subjects.map(s => [s.id, s]))
+  const facultyMap = new Map(faculty.map(f => [f.id, f]))
+  const roomMap = new Map(rooms.map(r => [r.id, r]))
+  const batchMap = new Map(batches.map(b => [b.id, b]))
 
-  if (error) throw error
+  const entries: TimetableEntry[] = slots
+    .map(slot => ({
+      ...slot,
+      subject: slot.subject_id ? subjectMap.get(slot.subject_id) : undefined,
+      faculty: slot.faculty_id ? facultyMap.get(slot.faculty_id) : undefined,
+      room: slot.room_id ? roomMap.get(slot.room_id) : undefined,
+      batch: slot.batch_id ? batchMap.get(slot.batch_id) : undefined,
+    }))
+    .sort(sortEntries)
 
-  return data
+  return entries
 }
 
 export async function deleteTimetable() {
-  const supabase = await createClient()
+  const db = await getDb()
 
-  const { error } = await supabase
-    .from('timetables')
-    .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000')
-
-  if (error) throw error
+  await db.collection('timetables').deleteMany({})
 
   revalidatePath('/admin/timetable')
   revalidatePath('/student')
@@ -96,19 +118,18 @@ export async function deleteTimetable() {
 }
 
 export async function getSubjectsWithFaculty() {
-  const supabase = await createClient()
+  const db = await getDb()
 
-  const { data: subjects, error } = await supabase
-    .from('subjects')
-    .select('id, subject_code, subject_name, category, classes_per_week')
-
-  if (error) throw error
-
-  const { data: faculty, error: facultyError } = await supabase
-    .from('faculty')
-    .select('id, faculty_name, short_code')
-
-  if (facultyError) throw facultyError
+  const [subjects, faculty] = await Promise.all([
+    db
+      .collection<Subject>('subjects')
+      .find({}, { projection: { _id: 0, id: 1, subject_code: 1, subject_name: 1, category: 1, classes_per_week: 1 } })
+      .toArray(),
+    db
+      .collection<Faculty>('faculty')
+      .find({}, { projection: { _id: 0, id: 1, faculty_name: 1, short_code: 1 } })
+      .toArray(),
+  ])
 
   return { subjects, faculty }
 }
@@ -124,7 +145,7 @@ type UpsertTimetableSlotInput = {
 }
 
 export async function upsertTimetableSlot(input: UpsertTimetableSlotInput) {
-  const supabase = await createClient()
+  const db = await getDb()
 
   const subject_id = input.subjectId || null
   const faculty_id = input.facultyId || null
@@ -133,16 +154,14 @@ export async function upsertTimetableSlot(input: UpsertTimetableSlotInput) {
   // Treat "no subject" as clearing the slot.
   if (!subject_id) {
     if (input.id) {
-      const { error } = await supabase.from('timetables').delete().eq('id', input.id)
-      if (error) throw error
+      await db.collection('timetables').deleteOne({ id: input.id })
     } else {
-      const { error } = await supabase
-        .from('timetables')
-        .delete()
-        .eq('batch_id', input.batchId)
-        .eq('day_of_week', input.dayOfWeek)
-        .eq('time_slot', input.timeSlot)
-      if (error) throw error
+      await db.collection('timetables').deleteOne({
+        batch_id: input.batchId,
+        day_of_week: input.dayOfWeek,
+        time_slot: input.timeSlot,
+        is_lunch_break: { $ne: true },
+      })
     }
 
     revalidatePath('/admin/timetable')
@@ -152,19 +171,20 @@ export async function upsertTimetableSlot(input: UpsertTimetableSlotInput) {
   }
 
   if (input.id) {
-    const { error } = await supabase
-      .from('timetables')
-      .update({
-        subject_id,
-        faculty_id,
-        room_id,
-        is_lunch_break: false,
-      })
-      .eq('id', input.id)
-
-    if (error) throw error
+    await db.collection('timetables').updateOne(
+      { id: input.id },
+      {
+        $set: {
+          subject_id,
+          faculty_id,
+          room_id,
+          is_lunch_break: false,
+        },
+      }
+    )
   } else {
-    const { error } = await supabase.from('timetables').insert({
+    await db.collection('timetables').insertOne({
+      id: randomUUID(),
       subject_id,
       faculty_id,
       room_id,
@@ -172,9 +192,8 @@ export async function upsertTimetableSlot(input: UpsertTimetableSlotInput) {
       day_of_week: input.dayOfWeek,
       time_slot: input.timeSlot,
       is_lunch_break: false,
+      created_at: new Date().toISOString(),
     })
-
-    if (error) throw error
   }
 
   revalidatePath('/admin/timetable')
@@ -192,27 +211,36 @@ type CheckConflictsInput = {
   roomId: string | null
 }
 
+type ConflictTimetableDoc = {
+  id: string
+  batch_id: string
+  faculty_id: string | null
+  room_id: string | null
+  day_of_week: TimetableSlot['day_of_week']
+  time_slot: TimetableSlot['time_slot']
+  is_lunch_break: boolean
+}
+
 export async function checkTimetableConflicts(input: CheckConflictsInput): Promise<Conflict[]> {
-  const supabase = await createClient()
+  const db = await getDb()
 
   const excludeId = input.slotId ?? '00000000-0000-0000-0000-000000000000'
   const conflicts: Conflict[] = []
 
   // Batch conflict (should rarely occur, but keeps data safe)
   {
-    const { data, error } = await supabase
-      .from('timetables')
-      .select('id')
-      .eq('batch_id', input.batchId)
-      .eq('day_of_week', input.dayOfWeek)
-      .eq('time_slot', input.timeSlot)
-      .neq('id', excludeId)
-      .neq('is_lunch_break', true)
-      .limit(1)
+    const existing = await db.collection<ConflictTimetableDoc>('timetables').findOne(
+      {
+        batch_id: input.batchId,
+        day_of_week: input.dayOfWeek,
+        time_slot: input.timeSlot,
+        id: { $ne: excludeId },
+        is_lunch_break: { $ne: true },
+      },
+      { projection: { _id: 0, id: 1 } }
+    )
 
-    if (error) throw error
-
-    if (data && data.length > 0) {
+    if (existing) {
       conflicts.push({
         type: 'batch',
         message: 'This batch already has a class in this slot.',
@@ -231,20 +259,30 @@ export async function checkTimetableConflicts(input: CheckConflictsInput): Promi
   }
 
   if (input.facultyId) {
-    const { data, error } = await supabase
-      .from('timetables')
-      .select('id, batch:batches(batch_name)')
-      .eq('day_of_week', input.dayOfWeek)
-      .eq('time_slot', input.timeSlot)
-      .eq('faculty_id', input.facultyId)
-      .neq('id', excludeId)
-      .neq('is_lunch_break', true)
+    const data = await db
+      .collection<ConflictTimetableDoc>('timetables')
+      .find(
+        {
+          day_of_week: input.dayOfWeek,
+          time_slot: input.timeSlot,
+          faculty_id: input.facultyId,
+          id: { $ne: excludeId },
+          is_lunch_break: { $ne: true },
+        },
+        { projection: { _id: 0, batch_id: 1 } }
+      )
+      .toArray()
 
-    if (error) throw error
+    if (data.length > 0) {
+      const batchIds = [...new Set(data.map(row => row.batch_id))]
+      const batches = await db
+        .collection<Batch>('batches')
+        .find({ id: { $in: batchIds } }, { projection: { _id: 0, id: 1, batch_name: 1 } })
+        .toArray()
 
-    if (data && data.length > 0) {
-      const batchNames = data
-        .map((row: any) => row.batch?.batch_name)
+      const batchMap = new Map(batches.map(b => [b.id, b.batch_name]))
+      const batchNames = batchIds
+        .map(id => batchMap.get(id))
         .filter(Boolean)
         .join(', ')
 
@@ -268,20 +306,30 @@ export async function checkTimetableConflicts(input: CheckConflictsInput): Promi
   }
 
   if (input.roomId) {
-    const { data, error } = await supabase
-      .from('timetables')
-      .select('id, batch:batches(batch_name)')
-      .eq('day_of_week', input.dayOfWeek)
-      .eq('time_slot', input.timeSlot)
-      .eq('room_id', input.roomId)
-      .neq('id', excludeId)
-      .neq('is_lunch_break', true)
+    const data = await db
+      .collection<ConflictTimetableDoc>('timetables')
+      .find(
+        {
+          day_of_week: input.dayOfWeek,
+          time_slot: input.timeSlot,
+          room_id: input.roomId,
+          id: { $ne: excludeId },
+          is_lunch_break: { $ne: true },
+        },
+        { projection: { _id: 0, batch_id: 1 } }
+      )
+      .toArray()
 
-    if (error) throw error
+    if (data.length > 0) {
+      const batchIds = [...new Set(data.map(row => row.batch_id))]
+      const batches = await db
+        .collection<Batch>('batches')
+        .find({ id: { $in: batchIds } }, { projection: { _id: 0, id: 1, batch_name: 1 } })
+        .toArray()
 
-    if (data && data.length > 0) {
-      const batchNames = data
-        .map((row: any) => row.batch?.batch_name)
+      const batchMap = new Map(batches.map(b => [b.id, b.batch_name]))
+      const batchNames = batchIds
+        .map(id => batchMap.get(id))
         .filter(Boolean)
         .join(', ')
 

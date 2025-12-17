@@ -1,6 +1,6 @@
 import { SubjectForm } from '@/components/subjects/subject-form'
 import { getCurrentUser } from '@/lib/auth/actions'
-import { createClient } from '@/lib/supabase/server'
+import { getSubjectById } from '@/lib/subjects/actions'
 import { redirect, notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -8,21 +8,16 @@ import { Button } from '@/components/ui/button'
 
 export default async function EditSubjectPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser()
-  
+
   if (!user || user.role !== 'admin') {
     redirect('/login')
   }
 
   const { id } = await params
-  const supabase = await createClient()
 
-  const { data: subject, error } = await supabase
-    .from('subjects')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const subject = await getSubjectById(id)
 
-  if (error || !subject) {
+  if (!subject) {
     notFound()
   }
 

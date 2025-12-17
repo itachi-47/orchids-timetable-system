@@ -1,26 +1,18 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { getTimetable } from '@/lib/timetable/actions'
 import { TimetableGrid } from '@/components/timetable/timetable-grid'
 import { Button } from '@/components/ui/button'
-import { logout } from '@/lib/auth/actions'
+import { logout, getCurrentUser } from '@/lib/auth/actions'
+import { getBatches } from '@/lib/batches/actions'
 import { Calendar } from 'lucide-react'
 
 export default async function StudentDashboard() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
-  const { data: userData } = await supabase.from('users').select('*').eq('user_id', user.id).single()
-
+  const userData = await getCurrentUser()
   if (!userData) redirect('/login')
+
   if (userData.role !== 'student') redirect('/dashboard')
 
-  const { data: batches } = await supabase.from('batches').select('*')
-  const timetableData = await getTimetable()
+  const [batches, timetableData] = await Promise.all([getBatches(), getTimetable()])
 
   const batchId = batches?.[0]?.id
   const batchName = batches?.[0]?.batch_name

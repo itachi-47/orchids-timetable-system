@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/mongodb/client'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -13,6 +14,14 @@ const signupSchema = loginSchema.extend({
   fullName: z.string().min(2),
   role: z.enum(['admin', 'student']),
 })
+
+export type UserProfile = {
+  id: string
+  email: string
+  full_name: string
+  role: 'admin' | 'student'
+  created_at?: string
+}
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -67,16 +76,21 @@ export async function signup(formData: FormData) {
   }
 
   if (authData.user) {
-    const { error: dbError } = await supabase.from('users').insert({
-      id: authData.user.id,
-      email: validated.data.email,
-      full_name: validated.data.fullName,
-      role: validated.data.role,
-    })
+    const db = await getDb()
 
-    if (dbError) {
-      return { error: 'Failed to create user profile' }
-    }
+    await db.collection<UserProfile>('users').updateOne(
+      { id: authData.user.id },
+      {
+        $set: {
+          id: authData.user.id,
+          email: validated.data.email,
+          full_name: validated.data.fullName,
+          role: validated.data.role,
+          created_at: new Date().toISOString(),
+        },
+      },
+      { upsert: true }
+    )
   }
 
   redirect('/login?message=Check email to verify account')
@@ -88,20 +102,22 @@ export async function logout() {
   redirect('/login')
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<UserProfile | null> {
   const supabase = await createClient()
-  
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
   if (error || !user) {
     return null
   }
 
-  const { data: userData } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const db = await getDb()
+  const userData = await db
+    .collection<UserProfile>('users')
+    .findOne({ id: user.id }, { projection: { _id: 0 } })
 
   return userData
 }

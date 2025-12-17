@@ -1,12 +1,13 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/mongodb/client'
+import { randomUUID } from 'crypto'
 import { revalidatePath } from 'next/cache'
 
 export type Batch = {
   id: string
   batch_name: string
-  created_at: string
+  created_at?: string
 }
 
 export type BatchInput = {
@@ -14,33 +15,37 @@ export type BatchInput = {
 }
 
 export async function getBatches() {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('batches')
-    .select('*')
-    .order('batch_name', { ascending: true })
+  const db = await getDb()
+  const data = await db
+    .collection<Batch>('batches')
+    .find({}, { projection: { _id: 0 } })
+    .sort({ batch_name: 1 })
+    .toArray()
 
-  if (error) throw error
-  return data as Batch[]
+  return data
 }
 
 export async function createBatch(input: BatchInput) {
-  const supabase = await createClient()
-  const { error } = await supabase
-    .from('batches')
-    .insert(input)
+  const batch_name = input.batch_name?.trim()
+  if (!batch_name) throw new Error('Invalid batch data')
 
-  if (error) throw error
+  const db = await getDb()
+  await db.collection<Batch>('batches').insertOne({
+    id: randomUUID(),
+    batch_name,
+    created_at: new Date().toISOString(),
+  })
+
   revalidatePath('/admin/batches')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
 }
 
 export async function deleteBatch(id: string) {
-  const supabase = await createClient()
-  const { error } = await supabase
-    .from('batches')
-    .delete()
-    .eq('id', id)
+  const db = await getDb()
+  await db.collection<Batch>('batches').deleteOne({ id })
 
-  if (error) throw error
   revalidatePath('/admin/batches')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
 }

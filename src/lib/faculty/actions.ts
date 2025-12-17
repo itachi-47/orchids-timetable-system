@@ -1,13 +1,14 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/mongodb/client'
+import { randomUUID } from 'crypto'
 import { revalidatePath } from 'next/cache'
 
 export type Faculty = {
   id: string
   faculty_name: string
   short_code: string
-  created_at: string
+  created_at?: string
 }
 
 export type FacultyInput = {
@@ -23,72 +24,106 @@ export type FacultyWorkload = {
 }
 
 export async function getFaculty() {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('faculty')
-    .select('*')
-    .order('faculty_name', { ascending: true })
+  const db = await getDb()
+  const data = await db
+    .collection<Faculty>('faculty')
+    .find({}, { projection: { _id: 0 } })
+    .sort({ faculty_name: 1 })
+    .toArray()
 
-  if (error) throw error
-  return data as Faculty[]
+  return data
 }
 
 export async function getFacultyById(id: string) {
-  const supabase = await createClient()
-  const { data, error } = await supabase.from('faculty').select('*').eq('id', id).single()
+  const db = await getDb()
 
-  if (error) throw error
-  return data as Faculty
+  const faculty = await db
+    .collection<Faculty>('faculty')
+    .findOne({ id }, { projection: { _id: 0 } })
+
+  if (!faculty) throw new Error('Faculty not found')
+  return faculty
 }
 
 export async function createFaculty(input: FacultyInput) {
-  const supabase = await createClient()
-  const { error } = await supabase.from('faculty').insert(input)
+  const faculty_name = input.faculty_name?.trim()
+  const short_code = input.short_code?.trim()
 
-  if (error) throw error
+  if (!faculty_name || !short_code) throw new Error('Invalid faculty data')
+
+  const db = await getDb()
+  await db.collection<Faculty>('faculty').insertOne({
+    id: randomUUID(),
+    faculty_name,
+    short_code,
+    created_at: new Date().toISOString(),
+  })
+
   revalidatePath('/admin/faculty')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
 }
 
 export async function updateFaculty(id: string, input: FacultyInput) {
-  const supabase = await createClient()
-  const { error } = await supabase.from('faculty').update(input).eq('id', id)
+  const faculty_name = input.faculty_name?.trim()
+  const short_code = input.short_code?.trim()
 
-  if (error) throw error
+  if (!faculty_name || !short_code) throw new Error('Invalid faculty data')
+
+  const db = await getDb()
+  const res = await db
+    .collection<Faculty>('faculty')
+    .updateOne({ id }, { $set: { faculty_name, short_code } })
+
+  if (res.matchedCount === 0) throw new Error('Faculty not found')
+
   revalidatePath('/admin/faculty')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
 }
 
 export async function deleteFaculty(id: string) {
-  const supabase = await createClient()
-  const { error } = await supabase.from('faculty').delete().eq('id', id)
+  const db = await getDb()
+  await db.collection<Faculty>('faculty').deleteOne({ id })
 
-  if (error) throw error
   revalidatePath('/admin/faculty')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
+}
+
+type TimetableFacultySlot = {
+  faculty_id: string | null
+  is_lunch_break: boolean
 }
 
 export async function getFacultyWorkload(): Promise<FacultyWorkload[]> {
-  const supabase = await createClient()
+  const db = await getDb()
 
-  const [{ data: faculty, error: facultyError }, { data: slots, error: slotsError }] =
-    await Promise.all([
-      supabase.from('faculty').select('id, faculty_name, short_code').order('faculty_name'),
-      supabase
-        .from('timetables')
-        .select('faculty_id, is_lunch_break')
-        .not('faculty_id', 'is', null)
-        .neq('is_lunch_break', true),
-    ])
-
-  if (facultyError) throw facultyError
-  if (slotsError) throw slotsError
+  const [faculty, slots] = await Promise.all([
+    db
+      .collection<Faculty>('faculty')
+      .find({}, { projection: { _id: 0 } })
+      .sort({ faculty_name: 1 })
+      .toArray(),
+    db
+      .collection<TimetableFacultySlot>('timetables')
+      .find(
+        {
+          faculty_id: { $ne: null },
+          is_lunch_break: { $ne: true },
+        },
+        { projection: { _id: 0, faculty_id: 1 } }
+      )
+      .toArray(),
+  ])
 
   const counts = new Map<string, number>()
-  for (const row of slots ?? []) {
-    const id = (row as any).faculty_id as string | null
-    if (!id) continue
-    counts.set(id, (counts.get(id) ?? 0) + 1)
+  for (const row of slots) {
+    if (!row.faculty_id) continue
+    counts.set(row.faculty_id, (counts.get(row.faculty_id) ?? 0) + 1)
   }
 
-  const result: FacultyWorkload[] = (faculty ?? []).map((f: any) => ({
+  const result: FacultyWorkload[] = faculty.map(f => ({
     id: f.id,
     faculty_name: f.faculty_name,
     short_code: f.short_code,

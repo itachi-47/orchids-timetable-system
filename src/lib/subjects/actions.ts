@@ -1,109 +1,105 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { getDb } from '@/lib/mongodb/client'
+import { randomUUID } from 'crypto'
 import { revalidatePath } from 'next/cache'
 
 export type Subject = {
   id: string
-  code: string
-  name: string
-  credits: number
-  theory_hours: number
-  practical_hours: number
+  subject_code: string
+  subject_name: string
+  category: string
+  classes_per_week: number
   created_at?: string
 }
 
 export async function getSubjects() {
-  const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from('subjects')
-    .select('*')
-    .order('code', { ascending: true })
+  const db = await getDb()
 
-  if (error) {
-    console.error('Error fetching subjects:', error)
-    throw new Error('Failed to fetch subjects')
-  }
+  const data = await db
+    .collection<Subject>('subjects')
+    .find({}, { projection: { _id: 0 } })
+    .sort({ subject_code: 1 })
+    .toArray()
 
-  return data as Subject[]
+  return data
+}
+
+export async function getSubjectById(id: string) {
+  const db = await getDb()
+
+  const subject = await db
+    .collection<Subject>('subjects')
+    .findOne({ id }, { projection: { _id: 0 } })
+
+  return subject
 }
 
 export async function createSubject(formData: FormData) {
-  const supabase = await createClient()
+  const subject_code = (formData.get('subject_code') as string) || ''
+  const subject_name = (formData.get('subject_name') as string) || ''
+  const category = (formData.get('category') as string) || ''
+  const classes_per_week = parseInt((formData.get('classes_per_week') as string) || '', 10)
 
-  const code = formData.get('code') as string
-  const name = formData.get('name') as string
-  const credits = parseInt(formData.get('credits') as string)
-  const theory_hours = parseInt(formData.get('theory_hours') as string)
-  const practical_hours = parseInt(formData.get('practical_hours') as string)
-
-  if (!code || !name || !credits || credits < 0 || theory_hours < 0 || practical_hours < 0) {
+  if (!subject_code.trim() || !subject_name.trim() || !category.trim() || Number.isNaN(classes_per_week)) {
     throw new Error('Invalid subject data')
   }
 
-  const { error } = await supabase
-    .from('subjects')
-    .insert({
-      code,
-      name,
-      credits,
-      theory_hours,
-      practical_hours,
-    })
+  const db = await getDb()
 
-  if (error) {
-    console.error('Error creating subject:', error)
-    throw new Error('Failed to create subject')
-  }
+  await db.collection<Subject>('subjects').insertOne({
+    id: randomUUID(),
+    subject_code: subject_code.trim(),
+    subject_name: subject_name.trim(),
+    category: category.trim(),
+    classes_per_week: Math.max(0, classes_per_week),
+    created_at: new Date().toISOString(),
+  })
 
   revalidatePath('/admin/subjects')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
 }
 
 export async function updateSubject(id: string, formData: FormData) {
-  const supabase = await createClient()
+  const subject_code = (formData.get('subject_code') as string) || ''
+  const subject_name = (formData.get('subject_name') as string) || ''
+  const category = (formData.get('category') as string) || ''
+  const classes_per_week = parseInt((formData.get('classes_per_week') as string) || '', 10)
 
-  const code = formData.get('code') as string
-  const name = formData.get('name') as string
-  const credits = parseInt(formData.get('credits') as string)
-  const theory_hours = parseInt(formData.get('theory_hours') as string)
-  const practical_hours = parseInt(formData.get('practical_hours') as string)
-
-  if (!code || !name || !credits || credits < 0 || theory_hours < 0 || practical_hours < 0) {
+  if (!subject_code.trim() || !subject_name.trim() || !category.trim() || Number.isNaN(classes_per_week)) {
     throw new Error('Invalid subject data')
   }
 
-  const { error } = await supabase
-    .from('subjects')
-    .update({
-      code,
-      name,
-      credits,
-      theory_hours,
-      practical_hours,
-    })
-    .eq('id', id)
+  const db = await getDb()
 
-  if (error) {
-    console.error('Error updating subject:', error)
-    throw new Error('Failed to update subject')
+  const res = await db.collection<Subject>('subjects').updateOne(
+    { id },
+    {
+      $set: {
+        subject_code: subject_code.trim(),
+        subject_name: subject_name.trim(),
+        category: category.trim(),
+        classes_per_week: Math.max(0, classes_per_week),
+      },
+    }
+  )
+
+  if (res.matchedCount === 0) {
+    throw new Error('Subject not found')
   }
 
   revalidatePath('/admin/subjects')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
 }
 
 export async function deleteSubject(id: string) {
-  const supabase = await createClient()
+  const db = await getDb()
 
-  const { error } = await supabase
-    .from('subjects')
-    .delete()
-    .eq('id', id)
-
-  if (error) {
-    console.error('Error deleting subject:', error)
-    throw new Error('Failed to delete subject')
-  }
+  await db.collection<Subject>('subjects').deleteOne({ id })
 
   revalidatePath('/admin/subjects')
+  revalidatePath('/admin/timetable')
+  revalidatePath('/student')
 }
