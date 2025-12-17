@@ -19,26 +19,28 @@ export default async function TimetablePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard">
-              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-200">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-50">Timetable</h1>
-              <p className="text-slate-400">View generated timetables for all batches</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/admin/dashboard">
+                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-200">
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-50">Timetable</h1>
+                <p className="text-slate-400">View generated timetables for all batches</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Link href="/admin/timetable/generate">
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Generate New
+                </Button>
+              </Link>
             </div>
           </div>
-
-          <Link href="/admin/timetable/generate">
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              <Calendar className="mr-2 h-4 w-4" />
-              Generate New
-            </Button>
-          </Link>
-        </div>
 
         {groupedByBatch.length === 0 ? (
           <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-12 text-center backdrop-blur">

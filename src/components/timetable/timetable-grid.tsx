@@ -1,6 +1,7 @@
 'use client'
 
 import { TimetableEntry } from '@/lib/timetable/types'
+import { ExportButtons } from './export-buttons'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const TIME_SLOTS = [
@@ -30,7 +31,10 @@ export function TimetableGrid({ entries, batchName }: TimetableGridProps) {
     <div className="space-y-4">
       {batchName && (
         <div className="rounded-lg border border-purple-500/20 bg-purple-500/10 p-4 backdrop-blur">
-          <h3 className="text-xl font-bold text-slate-50">{batchName}</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-slate-50">{batchName}</h3>
+            <ExportButtons entries={entries} batchName={batchName} />
+          </div>
         </div>
       )}
 
