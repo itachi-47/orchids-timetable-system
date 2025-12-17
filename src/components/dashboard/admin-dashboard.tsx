@@ -85,7 +85,19 @@ export function AdminDashboard({ user }: { user: User }) {
               </Card>
             </Link>
 
-          <Link href="/admin/timetable">
+            <Link href="/admin/timetable/generate">
+              <Card className="cursor-pointer border-slate-700 bg-slate-800/50 backdrop-blur transition-all hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20">
+                <CardHeader>
+                  <Grid3x3 className="mb-2 h-8 w-8 text-purple-400" />
+                  <CardTitle className="text-slate-50">Generate Timetable</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Create automated timetables
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            <Link href="/admin/timetable">
             <Card className="cursor-pointer border-slate-700 bg-slate-800/50 backdrop-blur transition-all hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20">
               <CardHeader>
                 <Calendar className="mb-2 h-8 w-8 text-purple-400" />
