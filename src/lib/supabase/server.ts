@@ -1,3 +1,3 @@
 export async function createClient() {
-  throw new Error('Supabase has been removed in favor of MongoDB — do not import createClient')
+  throw new Error('Removed — do not import createClient')
 }
