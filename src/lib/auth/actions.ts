@@ -57,7 +57,8 @@ export async function login(formData: FormData) {
 
   const token = signToken(payload)
 
-  cookies().set({
+  const cookieStore = await cookies()
+  cookieStore.set({
     name: process.env.AUTH_COOKIE_NAME || 'token',
     value: token,
     httpOnly: true,
@@ -104,12 +105,14 @@ export async function signup(formData: FormData) {
 }
 
 export async function logout() {
-  cookies().set({ name: process.env.AUTH_COOKIE_NAME || 'token', value: '', maxAge: 0, path: '/' })
+  const cookieStore = await cookies()
+  cookieStore.set({ name: process.env.AUTH_COOKIE_NAME || 'token', value: '', maxAge: 0, path: '/' })
   redirect('/login')
 }
 
 export async function getCurrentUser(): Promise<UserProfile | null> {
-  const token = cookies().get(process.env.AUTH_COOKIE_NAME || 'token')?.value
+  const cookieStore = await cookies()
+  const token = cookieStore.get(process.env.AUTH_COOKIE_NAME || 'token')?.value
   if (!token) return null
 
   const payload = verifyToken(token)
