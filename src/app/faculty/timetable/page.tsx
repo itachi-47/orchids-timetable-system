@@ -5,8 +5,8 @@ import { getTimetable } from '@/lib/timetable/actions'
 import { getBatches } from '@/lib/batches/actions'
 import { TimetableGrid } from '@/components/timetable/timetable-grid'
 import { Card, CardContent } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar } from 'lucide-react'
+import { BatchSelector } from '@/components/hod/batch-selector'
 
 export default async function FacultyTimetablePage({
   searchParams,
@@ -41,26 +41,13 @@ export default async function FacultyTimetablePage({
           </div>
           
           {batches.length > 0 && (
-            <form className="w-full sm:w-64">
-              <Select 
-                name="batch" 
-                defaultValue={selectedBatchId}
-                onValueChange={(value) => {
-                  window.location.href = `/faculty/timetable?batch=${value}`
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select batch" />
-                </SelectTrigger>
-                <SelectContent>
-                  {batches.map(batch => (
-                    <SelectItem key={batch.id} value={batch.id}>
-                      {batch.batch_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </form>
+            <div className="w-full sm:w-64">
+              <BatchSelector 
+                batches={batches} 
+                selectedBatchId={selectedBatchId || ''} 
+                basePath="/faculty/timetable" 
+              />
+            </div>
           )}
         </div>
 

@@ -6,19 +6,27 @@ import { logout, getCurrentUser } from '@/lib/auth/actions'
 import { getBatches } from '@/lib/batches/actions'
 import { Calendar, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { BatchSelector } from '@/components/hod/batch-selector'
 
-export default async function StudentTimetablePage() {
+export default async function StudentTimetablePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ batch?: string }>
+}) {
   const userData = await getCurrentUser()
   if (!userData) redirect('/login')
 
   if (userData.role !== 'student') redirect('/dashboard')
 
+  const params = await searchParams
   const [batches, timetableData] = await Promise.all([getBatches(), getTimetable()])
 
-  const batchId = batches?.[0]?.id
-  const batchName = batches?.[0]?.batch_name
-
-  const studentTimetable = batchId ? timetableData.filter(entry => entry.batch_id === batchId) : []
+  const selectedBatchId = params.batch || batches[0]?.id
+  const selectedBatch = batches.find(b => b.id === selectedBatchId)
+  
+  const studentTimetable = selectedBatchId 
+    ? timetableData.filter(entry => entry.batch_id === selectedBatchId) 
+    : []
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -33,10 +41,21 @@ export default async function StudentTimetablePage() {
             <Calendar className="h-6 w-6 text-amber-600" />
             <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">My Timetable</h1>
           </div>
+          
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <span className="text-sm text-slate-600">{userData.full_name}</span>
+            {batches.length > 0 && (
+              <div className="w-full sm:w-48">
+                <BatchSelector 
+                  batches={batches} 
+                  selectedBatchId={selectedBatchId || ''} 
+                  basePath="/student/timetable" 
+                />
+              </div>
+            )}
+            <span className="hidden text-sm text-slate-600 sm:inline">{userData.full_name}</span>
             <form action={logout}>
               <Button
+                type="submit"
                 variant="outline"
                 size="sm"
                 className="w-full border-slate-300 text-slate-700 hover:bg-slate-100 sm:w-auto"
@@ -61,7 +80,11 @@ export default async function StudentTimetablePage() {
             <p className="mt-2 text-sm text-slate-500">Contact your administrator</p>
           </div>
         ) : (
-          <TimetableGrid entries={studentTimetable} batchName={batchName} />
+          <TimetableGrid 
+            entries={studentTimetable} 
+            batchName={selectedBatch?.batch_name} 
+            editable={false}
+          />
         )}
       </main>
     </div>
