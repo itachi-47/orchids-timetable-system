@@ -41,25 +41,25 @@ export function RoomForm({ room, mode }: RoomFormProps) {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto border-slate-700 bg-slate-800/50">
+    <Card className="max-w-2xl mx-auto border-slate-200 bg-white shadow-sm">
       <CardHeader>
-        <CardTitle className="text-slate-50">
+        <CardTitle className="text-slate-900">
           {mode === 'create' ? 'Add New Room' : 'Edit Room'}
         </CardTitle>
-        <CardDescription className="text-slate-400">
+        <CardDescription className="text-slate-600">
           {mode === 'create' ? 'Create a new room' : 'Update room details'}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="room_number" className="text-slate-200">Room Number</Label>
+            <Label htmlFor="room_number" className="text-slate-700">Room Number</Label>
             <Input
               id="room_number"
               value={formData.room_number}
               onChange={(e) => setFormData({ ...formData, room_number: e.target.value })}
               required
-              className="border-slate-600 bg-slate-900 text-slate-50"
+              className="border-slate-300 bg-white text-slate-900 focus:border-blue-500 focus:ring-blue-500"
               placeholder="e.g., 101, A-305"
             />
           </div>
@@ -68,7 +68,7 @@ export function RoomForm({ room, mode }: RoomFormProps) {
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {loading ? 'Saving...' : mode === 'create' ? 'Create Room' : 'Update Room'}
             </Button>
@@ -76,7 +76,7 @@ export function RoomForm({ room, mode }: RoomFormProps) {
               type="button" 
               variant="outline"
               onClick={() => router.push('/admin/rooms')}
-              className="border-slate-600 text-slate-200 hover:bg-slate-800"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
             >
               Cancel
             </Button>

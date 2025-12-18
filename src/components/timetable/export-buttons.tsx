@@ -37,7 +37,7 @@ export function ExportButtons({ entries, batchName, variant = 'single', allTimet
       <Button
         onClick={handleExcelExport}
         variant="outline"
-        className="border-green-500/30 bg-green-500/10 text-green-300 hover:bg-green-500/20 hover:text-green-200"
+        className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
       >
         <FileSpreadsheet className="mr-2 h-4 w-4" />
         Export Excel
@@ -45,7 +45,7 @@ export function ExportButtons({ entries, batchName, variant = 'single', allTimet
       <Button
         onClick={handlePDFExport}
         variant="outline"
-        className="border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200"
+        className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
       >
         <FileDown className="mr-2 h-4 w-4" />
         Export PDF

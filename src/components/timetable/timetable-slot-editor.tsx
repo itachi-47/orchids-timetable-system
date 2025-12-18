@@ -138,113 +138,113 @@ export function TimetableSlotEditor({ open, onOpenChange, slot, subjects, facult
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Edit timetable slot</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div className="text-sm text-slate-400">
-            <div>
-              <span className="text-slate-200">Batch:</span> {slot.batchName ?? '—'}
+        <DialogContent className="max-w-lg border-slate-200 bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900">Edit timetable slot</DialogTitle>
+          </DialogHeader>
+  
+          <div className="space-y-4">
+            <div className="text-sm text-slate-500">
+              <div>
+                <span className="text-slate-700 font-medium">Batch:</span> {slot.batchName ?? '—'}
+              </div>
+              <div>
+                <span className="text-slate-700 font-medium">When:</span> {slot.dayOfWeek} · {slot.timeSlot}
+              </div>
             </div>
-            <div>
-              <span className="text-slate-200">When:</span> {slot.dayOfWeek} · {slot.timeSlot}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-slate-200">Subject</Label>
-            <Select value={subjectId} onValueChange={setSubjectId}>
-              <SelectTrigger className="border-slate-600 bg-slate-900/40 text-slate-200">
-                <SelectValue placeholder="Select subject" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map(s => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.subject_code} — {s.subject_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
+  
             <div className="space-y-2">
-              <Label className="text-slate-200">Faculty</Label>
-              <Select value={facultyId} onValueChange={setFacultyId}>
-                <SelectTrigger className="border-slate-600 bg-slate-900/40 text-slate-200">
-                  <SelectValue placeholder="Select faculty" />
+              <Label className="text-slate-700">Subject</Label>
+              <Select value={subjectId} onValueChange={setSubjectId}>
+                <SelectTrigger className="border-slate-300 bg-white text-slate-900">
+                  <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  {faculty.map(f => (
-                    <SelectItem key={f.id} value={f.id}>
-                      {f.short_code} — {f.faculty_name}
+                  {subjects.map(s => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.subject_code} — {s.subject_name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="space-y-2">
-              <Label className="text-slate-200">Room</Label>
-              <Select value={roomId} onValueChange={setRoomId}>
-                <SelectTrigger className="border-slate-600 bg-slate-900/40 text-slate-200">
-                  <SelectValue placeholder="Select room" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rooms.map(r => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.room_number}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+  
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="text-slate-700">Faculty</Label>
+                <Select value={facultyId} onValueChange={setFacultyId}>
+                  <SelectTrigger className="border-slate-300 bg-white text-slate-900">
+                    <SelectValue placeholder="Select faculty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {faculty.map(f => (
+                      <SelectItem key={f.id} value={f.id}>
+                        {f.short_code} — {f.faculty_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+  
+              <div className="space-y-2">
+                <Label className="text-slate-700">Room</Label>
+                <Select value={roomId} onValueChange={setRoomId}>
+                  <SelectTrigger className="border-slate-300 bg-white text-slate-900">
+                    <SelectValue placeholder="Select room" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {rooms.map(r => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {r.room_number}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+  
+            {checkingConflicts ? (
+              <p className="text-sm text-slate-500">Checking conflicts…</p>
+            ) : conflictMessages.length > 0 ? (
+              <Alert variant="destructive" className="border-red-200 bg-red-50 text-red-900">
+                <AlertTitle>Conflicts detected</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc pl-5">
+                    {conflictMessages.map((m, idx) => (
+                      <li key={idx}>{m}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            ) : null}
           </div>
-
-          {checkingConflicts ? (
-            <p className="text-sm text-slate-400">Checking conflicts…</p>
-          ) : conflictMessages.length > 0 ? (
-            <Alert variant="destructive" className="border-red-500/30">
-              <AlertTitle>Conflicts detected</AlertTitle>
-              <AlertDescription>
-                <ul className="list-disc pl-5">
-                  {conflictMessages.map((m, idx) => (
-                    <li key={idx}>{m}</li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          ) : null}
-        </div>
-
-        <DialogFooter className="gap-2 sm:gap-2">
-          {slot.entry?.id ? (
+  
+          <DialogFooter className="gap-2 sm:gap-2">
+            {slot.entry?.id ? (
+              <Button
+                variant="destructive"
+                onClick={handleClear}
+                disabled={isPending}
+                className="sm:mr-auto"
+              >
+                Clear slot
+              </Button>
+            ) : (
+              <div className="sm:mr-auto" />
+            )}
+  
             <Button
-              variant="destructive"
-              onClick={handleClear}
+              variant="outline"
+              onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="sm:mr-auto"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
             >
-              Clear slot
+              Cancel
             </Button>
-          ) : (
-            <div className="sm:mr-auto" />
-          )}
-
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isPending}
-            className="border-slate-600 text-slate-200 hover:bg-slate-800"
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={!canSave || isPending} className="bg-purple-600 hover:bg-purple-700">
-            Save
-          </Button>
-        </DialogFooter>
+            <Button onClick={handleSave} disabled={!canSave || isPending} className="bg-blue-600 hover:bg-blue-700 text-white">
+              Save
+            </Button>
+          </DialogFooter>
       </DialogContent>
     </Dialog>
   )

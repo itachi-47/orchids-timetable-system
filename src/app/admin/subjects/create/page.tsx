@@ -13,16 +13,16 @@ export default async function CreateSubjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <header className="border-b border-slate-700 bg-slate-800/50 backdrop-blur">
+    <div className="min-h-screen bg-slate-50">
+      <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="container mx-auto flex items-center gap-4 px-4 py-4">
           <Link href="/admin/subjects">
-            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-200">
+            <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-slate-50">Create Subject</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Create Subject</h1>
         </div>
       </header>
 

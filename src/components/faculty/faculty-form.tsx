@@ -42,37 +42,37 @@ export function FacultyForm({ faculty, mode }: FacultyFormProps) {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto border-slate-700 bg-slate-800/50">
+    <Card className="max-w-2xl mx-auto border-slate-200 bg-white shadow-sm">
       <CardHeader>
-        <CardTitle className="text-slate-50">
+        <CardTitle className="text-slate-900">
           {mode === 'create' ? 'Add New Faculty' : 'Edit Faculty'}
         </CardTitle>
-        <CardDescription className="text-slate-400">
+        <CardDescription className="text-slate-600">
           {mode === 'create' ? 'Create a new faculty member' : 'Update faculty details'}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="faculty_name" className="text-slate-200">Faculty Name</Label>
+            <Label htmlFor="faculty_name" className="text-slate-700">Faculty Name</Label>
             <Input
               id="faculty_name"
               value={formData.faculty_name}
               onChange={(e) => setFormData({ ...formData, faculty_name: e.target.value })}
               required
-              className="border-slate-600 bg-slate-900 text-slate-50"
+              className="border-slate-300 bg-white text-slate-900 focus:border-blue-500 focus:ring-blue-500"
               placeholder="Enter faculty name"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="short_code" className="text-slate-200">Short Code</Label>
+            <Label htmlFor="short_code" className="text-slate-700">Short Code</Label>
             <Input
               id="short_code"
               value={formData.short_code}
               onChange={(e) => setFormData({ ...formData, short_code: e.target.value })}
               required
-              className="border-slate-600 bg-slate-900 text-slate-50"
+              className="border-slate-300 bg-white text-slate-900 focus:border-blue-500 focus:ring-blue-500"
               placeholder="e.g., JD"
             />
           </div>
@@ -81,7 +81,7 @@ export function FacultyForm({ faculty, mode }: FacultyFormProps) {
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {loading ? 'Saving...' : mode === 'create' ? 'Create Faculty' : 'Update Faculty'}
             </Button>
@@ -89,7 +89,7 @@ export function FacultyForm({ faculty, mode }: FacultyFormProps) {
               type="button" 
               variant="outline"
               onClick={() => router.push('/admin/faculty')}
-              className="border-slate-600 text-slate-200 hover:bg-slate-800"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
             >
               Cancel
             </Button>
