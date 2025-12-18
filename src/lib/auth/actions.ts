@@ -104,7 +104,7 @@ export async function login(formData: FormData) {
   redirect('/dashboard')
 }
 
-export async function signup(formData: FormData) {
+export async function signup(prevState: { error?: string } | null, formData: FormData) {
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
