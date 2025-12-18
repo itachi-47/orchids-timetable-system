@@ -1,0 +1,94 @@
+import { getCurrentUser } from '@/lib/auth/actions'
+import { redirect } from 'next/navigation'
+import { HODLayout } from '@/components/layout/hod-layout'
+import { getTimetableDraftsByStatus } from '@/lib/timetable-drafts/actions'
+import { getBatches } from '@/lib/batches/actions'
+import { getUsers } from '@/lib/users/actions'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { XCircle, Calendar, User, Eye, History } from 'lucide-react'
+import Link from 'next/link'
+
+export default async function HODRejectedPage() {
+  const user = await getCurrentUser()
+  
+  if (!user || (user.role !== 'hod' && user.role !== 'admin')) {
+    redirect('/login')
+  }
+
+  const [drafts, batches, users] = await Promise.all([
+    getTimetableDraftsByStatus('REJECTED', user.department_id),
+    getBatches(),
+    getUsers(),
+  ])
+
+  const getBatchName = (batchId: string) => batches.find(b => b.id === batchId)?.batch_name || 'Unknown'
+  const getCreatorName = (userId: string) => users.find(u => u.id === userId)?.full_name || 'Unknown'
+
+  return (
+    <HODLayout user={user}>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Rejected Timetables</h1>
+          <p className="mt-1 text-slate-600">Timetables that were sent back for revisions</p>
+        </div>
+
+        {drafts.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <History className="mx-auto h-12 w-12 text-slate-300" />
+              <p className="mt-4 text-slate-600">No rejected timetables</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {drafts.map((draft) => (
+              <Card key={draft.id}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{draft.name}</CardTitle>
+                    <Badge variant="destructive">
+                      <XCircle className="h-3 w-3 mr-1" />
+                      Rejected
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>{getBatchName(draft.batch_id)}</span>
+                    </div>
+                    <div>Sem: {draft.semester}</div>
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>{getCreatorName(draft.created_by)}</span>
+                    </div>
+                    <div>{draft.session}</div>
+                  </div>
+
+                  {draft.rejection_reason && (
+                    <div className="p-3 bg-red-50 border border-red-100 rounded-md">
+                      <p className="text-xs font-semibold text-red-700 uppercase mb-1">Reason for Rejection:</p>
+                      <p className="text-sm text-red-600">{draft.rejection_reason}</p>
+                    </div>
+                  )}
+
+                  <div className="pt-2 border-t">
+                    <Link href={`/hod/approvals/${draft.id}`}>
+                      <Button variant="outline" size="sm" className="w-full gap-1">
+                        <Eye className="h-4 w-4" />
+                        View Details
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </HODLayout>
+  )
+}
