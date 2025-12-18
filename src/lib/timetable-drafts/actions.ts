@@ -42,6 +42,10 @@ export type CreateDraftInput = {
   batch_id: string
   semester: string
   session: string
+  program_name?: string
+  effective_date?: string
+  coordinator_name?: string
+  hod_name?: string
   created_by: string
 }
 
@@ -57,6 +61,10 @@ export async function createTimetableDraft(input: CreateDraftInput): Promise<{ i
     batch_id: input.batch_id,
     semester: input.semester,
     session: input.session,
+    program_name: input.program_name?.trim(),
+    effective_date: input.effective_date,
+    coordinator_name: input.coordinator_name?.trim(),
+    hod_name: input.hod_name?.trim(),
     status: 'DRAFT',
     created_by: input.created_by,
     created_at: now,

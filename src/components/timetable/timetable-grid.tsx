@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import type { DayOfWeek, Faculty, Room, Subject, TimeSlot, TimetableEntry } from '@/lib/timetable/types'
 import { ExportButtons } from './export-buttons'
 import { TimetableSlotEditor } from './timetable-slot-editor'
+import type { OfficialTimetableOptions } from '@/lib/export/pdf'
 
 const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const TIME_SLOTS: TimeSlot[] = [
@@ -25,6 +26,7 @@ interface TimetableGridProps {
   subjects?: Subject[]
   faculty?: Faculty[]
   rooms?: Room[]
+  pdfOptions?: OfficialTimetableOptions
 }
 
 type SelectedSlot = {
@@ -44,6 +46,7 @@ export function TimetableGrid({
   subjects,
   faculty,
   rooms,
+  pdfOptions,
 }: TimetableGridProps) {
   const [editorOpen, setEditorOpen] = useState(false)
   const [selected, setSelected] = useState<SelectedSlot | null>(null)
@@ -82,7 +85,7 @@ export function TimetableGrid({
           <div className="rounded-lg border border-blue-200 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-xl font-semibold text-slate-900">{batchName}</h3>
-              <ExportButtons entries={entries} batchName={batchName} />
+              <ExportButtons entries={entries} batchName={batchName} pdfOptions={pdfOptions} />
             </div>
           </div>
         )}

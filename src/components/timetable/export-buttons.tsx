@@ -3,15 +3,17 @@
 import { Button } from '@/components/ui/button'
 import { FileDown, FileSpreadsheet } from 'lucide-react'
 import { TimetableEntry } from '@/lib/timetable/types'
+import type { OfficialTimetableOptions } from '@/lib/export/pdf'
 
 interface ExportButtonsProps {
   entries: TimetableEntry[]
   batchName: string
   variant?: 'single' | 'all'
   allTimetables?: { batchName: string; entries: TimetableEntry[] }[]
+  pdfOptions?: OfficialTimetableOptions
 }
 
-export function ExportButtons({ entries, batchName, variant = 'single', allTimetables }: ExportButtonsProps) {
+export function ExportButtons({ entries, batchName, variant = 'single', allTimetables, pdfOptions }: ExportButtonsProps) {
   const handleExcelExport = async () => {
     const { exportTimetableToExcel, exportAllTimetablesToExcel } = await import('@/lib/export/excel')
     
@@ -26,9 +28,9 @@ export function ExportButtons({ entries, batchName, variant = 'single', allTimet
     const { exportTimetableToPDF, exportAllTimetablesToPDF } = await import('@/lib/export/pdf')
     
     if (variant === 'all' && allTimetables) {
-      exportAllTimetablesToPDF(allTimetables)
+      exportAllTimetablesToPDF(allTimetables, pdfOptions)
     } else {
-      exportTimetableToPDF(entries, batchName)
+      exportTimetableToPDF(entries, batchName, pdfOptions)
     }
   }
 

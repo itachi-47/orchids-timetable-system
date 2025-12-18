@@ -88,18 +88,26 @@ export default async function DraftReviewPage({
           )}
         </div>
 
-        <Card className="border-slate-200">
-          <CardHeader>
-            <CardTitle>Draft Timetable Grid</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TimetableGrid 
-              entries={slots as any} 
-              batchName={batch?.batch_name}
-              editable={false}
-            />
-          </CardContent>
-        </Card>
+          <Card className="border-slate-200">
+            <CardHeader>
+              <CardTitle>Draft Timetable Grid</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TimetableGrid 
+                entries={slots as any} 
+                batchName={batch?.batch_name}
+                editable={false}
+                pdfOptions={{
+                  programName: draft.program_name,
+                  semester: `Semester ${draft.semester}`,
+                  session: draft.session,
+                  effectiveDate: draft.effective_date,
+                  coordinatorName: draft.coordinator_name,
+                  hodName: draft.hod_name,
+                }}
+              />
+            </CardContent>
+          </Card>
 
         {draft.status === 'REJECTED' && draft.rejection_reason && (
           <Card className="border-red-200 bg-red-50">

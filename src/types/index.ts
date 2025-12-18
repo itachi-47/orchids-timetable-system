@@ -28,6 +28,10 @@ export interface TimetableDraft {
   batch_id: string
   semester: string
   session: string
+  program_name?: string
+  effective_date?: string
+  coordinator_name?: string
+  hod_name?: string
   status: TimetableStatus
   created_by: string
   submitted_at?: string

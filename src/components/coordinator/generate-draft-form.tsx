@@ -37,6 +37,10 @@ interface GenerateDraftFormProps {
 const SEMESTERS = ['1', '2', '3', '4', '5', '6', '7', '8']
 const SESSIONS = ['2024-25', '2025-26', '2026-27']
 
+const formatDateForInput = (date: Date) => {
+  return date.toISOString().split('T')[0]
+}
+
 export function GenerateDraftForm({ subjects, faculty, batches, currentUser }: GenerateDraftFormProps) {
   const router = useRouter()
   const [step, setStep] = useState(1)
@@ -49,6 +53,10 @@ export function GenerateDraftForm({ subjects, faculty, batches, currentUser }: G
     batch_id: '',
     semester: '',
     session: SESSIONS[0],
+    program_name: '',
+    effective_date: formatDateForInput(new Date()),
+    coordinator_name: currentUser.full_name || '',
+    hod_name: '',
   })
 
   const [subjectFacultyMapping, setSubjectFacultyMapping] = useState<Record<string, string[]>>({})
@@ -80,14 +88,18 @@ export function GenerateDraftForm({ subjects, faculty, batches, currentUser }: G
     setResult(null)
 
     try {
-      const { id } = await createTimetableDraft({
-        name: formData.name,
-        department_id: currentUser.department_id || 'default',
-        batch_id: formData.batch_id,
-        semester: formData.semester,
-        session: formData.session,
-        created_by: currentUser.id,
-      })
+        const { id } = await createTimetableDraft({
+          name: formData.name,
+          department_id: currentUser.department_id || 'default',
+          batch_id: formData.batch_id,
+          semester: formData.semester,
+          session: formData.session,
+          program_name: formData.program_name,
+          effective_date: formData.effective_date,
+          coordinator_name: formData.coordinator_name,
+          hod_name: formData.hod_name,
+          created_by: currentUser.id,
+        })
 
       const genResult = await generateDraftTimetable(id, subjectFacultyMapping)
       setResult({ slotsGenerated: genResult.slotsGenerated, conflicts: genResult.conflicts })
@@ -126,65 +138,107 @@ export function GenerateDraftForm({ subjects, faculty, batches, currentUser }: G
               <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">{error}</div>
             )}
             
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="name">Timetable Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., CSE Sem-5 Timetable"
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Timetable Name *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g., CSE Sem-5 Timetable"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="batch">Batch *</Label>
+                  <Select
+                    value={formData.batch_id}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, batch_id: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select batch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {batches.map(batch => (
+                        <SelectItem key={batch.id} value={batch.id}>{batch.batch_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="semester">Semester *</Label>
+                  <Select
+                    value={formData.semester}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, semester: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select semester" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SEMESTERS.map(sem => (
+                        <SelectItem key={sem} value={sem}>Semester {sem}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="session">Session</Label>
+                  <Select
+                    value={formData.session}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, session: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SESSIONS.map(sess => (
+                        <SelectItem key={sess} value={sess}>{sess}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="batch">Batch *</Label>
-                <Select
-                  value={formData.batch_id}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, batch_id: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select batch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {batches.map(batch => (
-                      <SelectItem key={batch.id} value={batch.id}>{batch.batch_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+
+              <div className="pt-4 border-t">
+                <h4 className="text-sm font-medium text-slate-900 mb-3">PDF Export Settings</h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="program_name">Program Name</Label>
+                    <Input
+                      id="program_name"
+                      value={formData.program_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, program_name: e.target.value }))}
+                      placeholder="e.g., B.Tech III Semester"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="effective_date">Effective Date</Label>
+                    <Input
+                      id="effective_date"
+                      type="date"
+                      value={formData.effective_date}
+                      onChange={(e) => setFormData(prev => ({ ...prev, effective_date: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="coordinator_name">Coordinator Name</Label>
+                    <Input
+                      id="coordinator_name"
+                      value={formData.coordinator_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, coordinator_name: e.target.value }))}
+                      placeholder="e.g., Dr. John Doe"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hod_name">HOD Name</Label>
+                    <Input
+                      id="hod_name"
+                      value={formData.hod_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, hod_name: e.target.value }))}
+                      placeholder="e.g., Dr. Jane Smith"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="semester">Semester *</Label>
-                <Select
-                  value={formData.semester}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, semester: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select semester" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SEMESTERS.map(sem => (
-                      <SelectItem key={sem} value={sem}>Semester {sem}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="session">Session</Label>
-                <Select
-                  value={formData.session}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, session: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SESSIONS.map(sess => (
-                      <SelectItem key={sess} value={sess}>{sess}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
             <div className="flex justify-end pt-4">
               <Button
