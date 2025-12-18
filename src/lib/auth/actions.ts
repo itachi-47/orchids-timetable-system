@@ -19,20 +19,22 @@ const signupSchema = z.object({
   fullName: z.string().min(2),
 })
 
+import type { UserRole } from '@/types'
+
 export type UserProfile = {
   id: string
   email: string
   full_name: string
-  role: 'admin' | 'student' | 'faculty'
+  role: UserRole
+  department_id?: string
+  is_coordinator?: boolean
   created_at?: string
 }
 
-function getRoleFromEmail(email: string): 'admin' | 'faculty' | 'student' {
+function getRoleFromEmail(email: string): UserRole {
   const lowerEmail = email.toLowerCase()
   
   if (lowerEmail.endsWith('@mitsgwalior.in')) {
-    // Admin and faculty use @mitsgwalior.in
-    // Check if it's an admin email pattern (you can customize this)
     if (lowerEmail.startsWith('admin') || lowerEmail.includes('.admin@')) {
       return 'admin'
     }
@@ -43,7 +45,6 @@ function getRoleFromEmail(email: string): 'admin' | 'faculty' | 'student' {
     return 'student'
   }
   
-  // Default to student for any other domain (for testing)
   return 'student'
 }
 

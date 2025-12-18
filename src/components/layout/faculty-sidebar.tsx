@@ -3,18 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  BookOpen,
-  Users,
-  DoorOpen,
-  School,
-  Grid3x3,
   Calendar,
+  Clock,
   LayoutDashboard,
   LogOut,
   GraduationCap,
-  UserCheck,
-  Building2,
-  UserCog,
 } from 'lucide-react'
 import { logout } from '@/lib/auth/actions'
 import {
@@ -39,51 +32,13 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: 'Departments',
-    href: '/admin/departments',
-    icon: Building2,
-  },
-  {
-    title: 'Users',
-    href: '/admin/users',
-    icon: UserCog,
-  },
-  {
-    title: 'Subjects',
-    href: '/admin/subjects',
-    icon: BookOpen,
-  },
-  {
-    title: 'Faculty',
-    href: '/admin/faculty',
-    icon: Users,
-  },
-  {
-    title: 'Students',
-    href: '/admin/students',
-    icon: UserCheck,
-  },
-  {
-    title: 'Rooms',
-    href: '/admin/rooms',
-    icon: DoorOpen,
-  },
-  {
-    title: 'Batches',
-    href: '/admin/batches',
-    icon: School,
-  },
-]
-
-const timetableItems = [
-  {
-    title: 'Generate',
-    href: '/admin/timetable/generate',
-    icon: Grid3x3,
+    title: 'My Schedule',
+    href: '/faculty/schedule',
+    icon: Clock,
   },
   {
     title: 'View Timetable',
-    href: '/admin/timetable',
+    href: '/faculty/timetable',
     icon: Calendar,
   },
 ]
@@ -95,18 +50,18 @@ type User = {
   full_name: string
 }
 
-export function AdminSidebar({ user }: { user: User }) {
+export function FacultySidebar({ user }: { user: User }) {
   const pathname = usePathname()
 
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200">
       <SidebarHeader className="border-b border-slate-200 px-4 py-4">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
             <GraduationCap className="h-5 w-5 text-white" />
           </div>
           <span className="text-lg font-bold tracking-tight text-slate-900 group-data-[collapsible=icon]:hidden">
-            SATS
+            Faculty
           </span>
         </Link>
       </SidebarHeader>
@@ -114,7 +69,7 @@ export function AdminSidebar({ user }: { user: User }) {
       <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupLabel className="px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Management
+            Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -128,39 +83,7 @@ export function AdminSidebar({ user }: { user: User }) {
                       tooltip={item.title}
                       className={
                         isActive
-                          ? 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                      }
-                    >
-                      <Link href={item.href}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Timetable
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {timetableItems.map((item) => {
-                const isActive = pathname === item.href
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={item.title}
-                      className={
-                        isActive
-                          ? 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                          ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }
                     >
@@ -179,7 +102,7 @@ export function AdminSidebar({ user }: { user: User }) {
 
       <SidebarFooter className="border-t border-slate-200 p-4">
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-800 text-sm font-medium text-white">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-700 to-indigo-800 text-sm font-medium text-white">
             {user.full_name.charAt(0).toUpperCase()}
           </div>
           <div className="flex flex-1 flex-col overflow-hidden group-data-[collapsible=icon]:hidden">

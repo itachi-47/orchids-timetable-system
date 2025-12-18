@@ -1,86 +1,45 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BookOpen, Users, Calendar, DoorOpen, School, Grid3x3, Building2, UserCog } from 'lucide-react'
+import { Calendar, Clock } from 'lucide-react'
 import Link from 'next/link'
-import { AdminLayout } from '@/components/layout/admin-layout'
+import { FacultyLayout } from '@/components/layout/faculty-layout'
 
 type User = {
   id: string
   email: string
   role: string
   full_name: string
+  department_id?: string
 }
 
 const stats = [
   {
-    title: 'Departments',
-    description: 'Manage departments',
-    href: '/admin/departments',
-    icon: Building2,
-    gradient: 'from-violet-500 to-violet-600',
-  },
-  {
-    title: 'Users',
-    description: 'Manage users and roles',
-    href: '/admin/users',
-    icon: UserCog,
-    gradient: 'from-rose-500 to-rose-600',
-  },
-  {
-    title: 'Subjects',
-    description: 'Manage course subjects',
-    href: '/admin/subjects',
-    icon: BookOpen,
+    title: 'My Schedule',
+    description: 'View your lecture schedule',
+    href: '/faculty/schedule',
+    icon: Clock,
     gradient: 'from-blue-500 to-blue-600',
   },
   {
-    title: 'Faculty',
-    description: 'Manage faculty members',
-    href: '/admin/faculty',
-    icon: Users,
-    gradient: 'from-emerald-500 to-emerald-600',
-  },
-  {
-    title: 'Rooms',
-    description: 'Manage classrooms',
-    href: '/admin/rooms',
-    icon: DoorOpen,
-    gradient: 'from-orange-500 to-orange-600',
-  },
-  {
-    title: 'Batches',
-    description: 'Manage batches',
-    href: '/admin/batches',
-    icon: School,
-    gradient: 'from-purple-500 to-purple-600',
-  },
-  {
-    title: 'Generate Timetable',
-    description: 'Create automated timetables',
-    href: '/admin/timetable/generate',
-    icon: Grid3x3,
-    gradient: 'from-pink-500 to-pink-600',
-  },
-  {
     title: 'View Timetable',
-    description: 'View and edit timetables',
-    href: '/admin/timetable',
+    description: 'View approved timetables',
+    href: '/faculty/timetable',
     icon: Calendar,
-    gradient: 'from-indigo-500 to-indigo-600',
+    gradient: 'from-emerald-500 to-emerald-600',
   },
 ]
 
-export function AdminDashboard({ user }: { user: User }) {
+export function FacultyDashboard({ user }: { user: User }) {
   return (
-    <AdminLayout user={user}>
+    <FacultyLayout user={user}>
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Welcome back, {user.full_name.split(' ')[0]}
           </h1>
           <p className="mt-1 text-slate-600">
-            Manage your timetable system from the dashboard
+            View your teaching schedule and approved timetables
           </p>
         </div>
 
@@ -123,6 +82,6 @@ export function AdminDashboard({ user }: { user: User }) {
           ))}
         </div>
       </div>
-    </AdminLayout>
+    </FacultyLayout>
   )
 }

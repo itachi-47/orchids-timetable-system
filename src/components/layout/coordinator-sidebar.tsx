@@ -8,13 +8,10 @@ import {
   DoorOpen,
   School,
   Grid3x3,
-  Calendar,
+  FileText,
   LayoutDashboard,
   LogOut,
   GraduationCap,
-  UserCheck,
-  Building2,
-  UserCog,
 } from 'lucide-react'
 import { logout } from '@/lib/auth/actions'
 import {
@@ -39,38 +36,23 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: 'Departments',
-    href: '/admin/departments',
-    icon: Building2,
-  },
-  {
-    title: 'Users',
-    href: '/admin/users',
-    icon: UserCog,
-  },
-  {
     title: 'Subjects',
-    href: '/admin/subjects',
+    href: '/coordinator/subjects',
     icon: BookOpen,
   },
   {
     title: 'Faculty',
-    href: '/admin/faculty',
+    href: '/coordinator/faculty',
     icon: Users,
   },
   {
-    title: 'Students',
-    href: '/admin/students',
-    icon: UserCheck,
-  },
-  {
     title: 'Rooms',
-    href: '/admin/rooms',
+    href: '/coordinator/rooms',
     icon: DoorOpen,
   },
   {
     title: 'Batches',
-    href: '/admin/batches',
+    href: '/coordinator/batches',
     icon: School,
   },
 ]
@@ -78,13 +60,13 @@ const navItems = [
 const timetableItems = [
   {
     title: 'Generate',
-    href: '/admin/timetable/generate',
+    href: '/coordinator/timetable/generate',
     icon: Grid3x3,
   },
   {
-    title: 'View Timetable',
-    href: '/admin/timetable',
-    icon: Calendar,
+    title: 'My Drafts',
+    href: '/coordinator/drafts',
+    icon: FileText,
   },
 ]
 
@@ -95,18 +77,18 @@ type User = {
   full_name: string
 }
 
-export function AdminSidebar({ user }: { user: User }) {
+export function CoordinatorSidebar({ user }: { user: User }) {
   const pathname = usePathname()
 
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200">
       <SidebarHeader className="border-b border-slate-200 px-4 py-4">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-600 to-emerald-600">
             <GraduationCap className="h-5 w-5 text-white" />
           </div>
           <span className="text-lg font-bold tracking-tight text-slate-900 group-data-[collapsible=icon]:hidden">
-            SATS
+            Coordinator
           </span>
         </Link>
       </SidebarHeader>
@@ -128,7 +110,7 @@ export function AdminSidebar({ user }: { user: User }) {
                       tooltip={item.title}
                       className={
                         isActive
-                          ? 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                          ? 'bg-teal-50 text-teal-700 hover:bg-teal-100'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }
                     >
@@ -160,7 +142,7 @@ export function AdminSidebar({ user }: { user: User }) {
                       tooltip={item.title}
                       className={
                         isActive
-                          ? 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                          ? 'bg-teal-50 text-teal-700 hover:bg-teal-100'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }
                     >
@@ -179,7 +161,7 @@ export function AdminSidebar({ user }: { user: User }) {
 
       <SidebarFooter className="border-t border-slate-200 p-4">
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-800 text-sm font-medium text-white">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-700 to-emerald-800 text-sm font-medium text-white">
             {user.full_name.charAt(0).toUpperCase()}
           </div>
           <div className="flex flex-1 flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
