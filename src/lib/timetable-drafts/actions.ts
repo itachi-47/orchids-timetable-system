@@ -406,3 +406,102 @@ export async function getApprovedTimetables(departmentId?: string): Promise<Time
     .sort({ reviewed_at: -1 })
     .toArray()
 }
+
+export async function revokeApproval(draftId: string, userId: string, reason?: string) {
+  const db = await getDb()
+  
+  const draft = await db.collection<TimetableDraft>('timetable_drafts').findOne({ id: draftId })
+  if (!draft) throw new Error('Draft not found')
+  if (draft.status !== 'APPROVED') throw new Error('Can only revoke APPROVED timetables')
+
+  const now = new Date().toISOString()
+
+  await db.collection<TimetableDraft>('timetable_drafts').updateOne(
+    { id: draftId },
+    { 
+      $set: { 
+        status: 'DRAFT', 
+        reviewed_by: undefined,
+        reviewed_at: undefined,
+        updated_at: now,
+      },
+      $unset: {
+        reviewed_by: '',
+        reviewed_at: '',
+      }
+    }
+  )
+
+  await db.collection<ApprovalHistory>('approval_history').insertOne({
+    id: randomUUID(),
+    draft_id: draftId,
+    action: 'MODIFIED',
+    performed_by: userId,
+    comments: reason || 'Approval revoked - sent back for editing',
+    created_at: now,
+  })
+
+  revalidatePath('/coordinator')
+  revalidatePath('/hod')
+}
+
+export async function unpublishTimetable(draftId: string, userId: string) {
+  const db = await getDb()
+  
+  const draft = await db.collection<TimetableDraft>('timetable_drafts').findOne({ id: draftId })
+  if (!draft) throw new Error('Draft not found')
+  if (!draft.published_at) throw new Error('Timetable is not published')
+
+  await db.collection('timetables').deleteMany({ batch_id: draft.batch_id })
+
+  await db.collection<TimetableDraft>('timetable_drafts').updateOne(
+    { id: draftId },
+    { 
+      $set: { 
+        status: 'DRAFT',
+        updated_at: new Date().toISOString(),
+      },
+      $unset: {
+        published_at: '',
+        reviewed_by: '',
+        reviewed_at: '',
+      }
+    }
+  )
+
+  await db.collection<ApprovalHistory>('approval_history').insertOne({
+    id: randomUUID(),
+    draft_id: draftId,
+    action: 'MODIFIED',
+    performed_by: userId,
+    comments: 'Timetable unpublished and sent back for editing',
+    created_at: new Date().toISOString(),
+  })
+
+  revalidatePath('/coordinator')
+  revalidatePath('/hod')
+  revalidatePath('/faculty')
+  revalidatePath('/student')
+  revalidatePath('/admin/timetable')
+}
+
+export async function deleteApprovedTimetable(draftId: string, userId: string) {
+  const db = await getDb()
+  
+  const draft = await db.collection<TimetableDraft>('timetable_drafts').findOne({ id: draftId })
+  if (!draft) throw new Error('Draft not found')
+
+  if (draft.published_at) {
+    await db.collection('timetables').deleteMany({ batch_id: draft.batch_id })
+  }
+
+  await db.collection('timetable_draft_slots').deleteMany({ draft_id: draftId })
+  await db.collection('approval_history').deleteMany({ draft_id: draftId })
+  await db.collection<TimetableDraft>('timetable_drafts').deleteOne({ id: draftId })
+
+  revalidatePath('/coordinator')
+  revalidatePath('/hod')
+  revalidatePath('/faculty')
+  revalidatePath('/student')
+  revalidatePath('/admin/timetable')
+}

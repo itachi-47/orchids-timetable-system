@@ -1,13 +1,13 @@
 import { getCurrentUser } from '@/lib/auth/actions'
 import { redirect } from 'next/navigation'
 import { HODLayout } from '@/components/layout/hod-layout'
-import { getTimetableDraftsByStatus } from '@/lib/timetable-drafts/actions'
+import { unpublishTimetable, deleteApprovedTimetable } from '@/lib/timetable-drafts/actions'
 import { getBatches } from '@/lib/batches/actions'
 import { getUsers } from '@/lib/users/actions'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Send, Calendar, User, Eye, CheckCircle2 } from 'lucide-react'
+import { Send, Calendar, User, Eye, CheckCircle2, Undo2, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function HODPublishedPage() {
@@ -91,17 +91,39 @@ export default async function HODPublishedPage() {
                     <div>{draft.session}</div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <span className="text-xs text-slate-500">
-                      Published on {formatDate(draft.published_at)}
-                    </span>
-                    <Link href={`/hod/approvals/${draft.id}`}>
-                      <Button variant="ghost" size="sm" className="gap-1">
-                        <Eye className="h-4 w-4" />
-                        Details
-                      </Button>
-                    </Link>
-                  </div>
+                  <div className="flex flex-col gap-2 pt-2 border-t">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-500">
+                          Published on {formatDate(draft.published_at)}
+                        </span>
+                        <Link href={`/hod/approvals/${draft.id}`}>
+                          <Button variant="ghost" size="sm" className="gap-1">
+                            <Eye className="h-4 w-4" />
+                            Details
+                          </Button>
+                        </Link>
+                      </div>
+                      <div className="flex gap-2">
+                        <form action={async () => {
+                          'use server'
+                          await unpublishTimetable(draft.id, user.id)
+                        }} className="flex-1">
+                          <Button type="submit" variant="outline" size="sm" className="w-full gap-1 text-amber-600 border-amber-200 hover:bg-amber-50">
+                            <Undo2 className="h-4 w-4" />
+                            Unpublish & Edit
+                          </Button>
+                        </form>
+                        <form action={async () => {
+                          'use server'
+                          await deleteApprovedTimetable(draft.id, user.id)
+                        }} className="flex-1">
+                          <Button type="submit" variant="outline" size="sm" className="w-full gap-1 text-red-600 border-red-200 hover:bg-red-50">
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
                 </CardContent>
               </Card>
             ))}

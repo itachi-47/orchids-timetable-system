@@ -1,14 +1,13 @@
 import { getCurrentUser } from '@/lib/auth/actions'
 import { redirect } from 'next/navigation'
 import { HODLayout } from '@/components/layout/hod-layout'
-import { getTimetableDraftsByStatus } from '@/lib/timetable-drafts/actions'
+import { getTimetableDraftsByStatus, publishTimetable, revokeApproval, deleteApprovedTimetable } from '@/lib/timetable-drafts/actions'
 import { getBatches } from '@/lib/batches/actions'
 import { getUsers } from '@/lib/users/actions'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, Calendar, User, Send, Eye } from 'lucide-react'
-import { publishTimetable } from '@/lib/timetable-drafts/actions'
+import { CheckCircle, Calendar, User, Send, Eye, Undo2, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function HODApprovedPage() {
@@ -69,23 +68,45 @@ export default async function HODApprovedPage() {
                     <div>{draft.session}</div>
                   </div>
 
-                  <div className="flex gap-2 pt-2 border-t">
-                    <Link href={`/hod/approvals/${draft.id}`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full gap-1">
-                        <Eye className="h-4 w-4" />
-                        View
-                      </Button>
-                    </Link>
-                    <form action={async () => {
-                      'use server'
-                      await publishTimetable(draft.id, user.id)
-                    }} className="flex-1">
-                      <Button size="sm" className="w-full gap-1 bg-blue-600 hover:bg-blue-700">
-                        <Send className="h-4 w-4" />
-                        Publish
-                      </Button>
-                    </form>
-                  </div>
+                  <div className="flex flex-col gap-2 pt-2 border-t">
+                      <div className="flex gap-2">
+                        <Link href={`/hod/approvals/${draft.id}`} className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full gap-1">
+                            <Eye className="h-4 w-4" />
+                            View
+                          </Button>
+                        </Link>
+                        <form action={async () => {
+                          'use server'
+                          await publishTimetable(draft.id, user.id)
+                        }} className="flex-1">
+                          <Button size="sm" className="w-full gap-1 bg-blue-600 hover:bg-blue-700">
+                            <Send className="h-4 w-4" />
+                            Publish
+                          </Button>
+                        </form>
+                      </div>
+                      <div className="flex gap-2">
+                        <form action={async () => {
+                          'use server'
+                          await revokeApproval(draft.id, user.id)
+                        }} className="flex-1">
+                          <Button type="submit" variant="outline" size="sm" className="w-full gap-1 text-amber-600 border-amber-200 hover:bg-amber-50">
+                            <Undo2 className="h-4 w-4" />
+                            Send Back
+                          </Button>
+                        </form>
+                        <form action={async () => {
+                          'use server'
+                          await deleteApprovedTimetable(draft.id, user.id)
+                        }} className="flex-1">
+                          <Button type="submit" variant="outline" size="sm" className="w-full gap-1 text-red-600 border-red-200 hover:bg-red-50">
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
                 </CardContent>
               </Card>
             ))}
