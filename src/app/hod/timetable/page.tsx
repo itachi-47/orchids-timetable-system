@@ -5,8 +5,8 @@ import { getTimetable } from '@/lib/timetable/actions'
 import { getBatches } from '@/lib/batches/actions'
 import { TimetableGrid } from '@/components/timetable/timetable-grid'
 import { Card, CardContent } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar } from 'lucide-react'
+import { BatchSelector } from '@/components/hod/batch-selector'
 
 export default async function HODTimetablePage({
   searchParams,
@@ -43,24 +43,11 @@ export default async function HODTimetablePage({
           {batches.length > 0 && (
             <div className="w-full sm:w-64">
                <div className="text-sm font-medium text-slate-700 mb-1">Select Batch</div>
-               <div className="flex gap-2">
-                {/* We use a simple link-based selection here to avoid complex state in RSC */}
-                <div className="grid grid-cols-1 w-full">
-                  <select 
-                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
-                    defaultValue={selectedBatchId}
-                    onChange={(e) => {
-                      window.location.href = `/hod/timetable?batch=${e.target.value}`
-                    }}
-                  >
-                    {batches.map(batch => (
-                      <option key={batch.id} value={batch.id}>
-                        {batch.batch_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-               </div>
+               <BatchSelector 
+                 batches={batches} 
+                 selectedBatchId={selectedBatchId || ''} 
+                 basePath="/hod/timetable"
+               />
             </div>
           )}
         </div>
