@@ -4,12 +4,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { GraduationCap, BookOpen, Shield } from 'lucide-react'
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string; error?: string }>
 }) {
+  const params = await searchParams
+  
   return (
     <div className="flex min-h-screen">
       {/* Left Panel - Branding */}
@@ -83,6 +86,29 @@ export default function LoginPage({
             <p className="text-slate-600">
               Sign in with your institutional credentials
             </p>
+          </div>
+
+          {params.error && (
+            <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+              {decodeURIComponent(params.error)}
+            </div>
+          )}
+
+          {params.message && (
+            <div className="mb-6 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
+              {params.message}
+            </div>
+          )}
+
+          <GoogleSignInButton mode="signin" />
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-slate-300" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-slate-50 px-2 text-slate-500">Or continue with email</span>
+            </div>
           </div>
 
           <form action={login} className="space-y-5">

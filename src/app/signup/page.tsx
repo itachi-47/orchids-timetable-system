@@ -7,71 +7,85 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { GraduationCap, BookOpen, Users } from 'lucide-react'
 import { useActionState } from 'react'
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 
 function SignupForm() {
   const [state, formAction, isPending] = useActionState(signup, null)
 
   return (
-    <form action={formAction} className="space-y-5">
+    <div className="space-y-5">
       {state?.error && (
         <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
           {state.error}
         </div>
       )}
+
+      <GoogleSignInButton mode="signup" />
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-slate-300" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-slate-50 px-2 text-slate-500">Or continue with email</span>
+        </div>
+      </div>
       
-      <div className="space-y-2">
-        <Label htmlFor="fullName" className="text-slate-700 font-medium">
-          Full Name
-        </Label>
-        <Input
-          id="fullName"
-          name="fullName"
-          type="text"
-          placeholder="Enter your full name"
-          required
-          className="h-12 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="email" className="text-slate-700 font-medium">
-          Institutional Email
-        </Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="user@mitsgwl.ac.in"
-          required
-          className="h-12 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
-        />
-        <p className="text-xs text-slate-500">
-          Use @mitsgwl.ac.in for students or @mitsgwalior.in for faculty
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password" className="text-slate-700 font-medium">
-          Password
-        </Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          required
-          minLength={6}
-          className="h-12 border-slate-300 bg-white text-slate-900 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
-        />
-        <p className="text-xs text-slate-500">
-          Minimum 6 characters
-        </p>
-      </div>
-      <Button 
-        type="submit" 
-        disabled={isPending}
-        className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg transition-all disabled:opacity-50"
-      >
-        {isPending ? 'Creating Account...' : 'Create Account'}
-      </Button>
-    </form>
+      <form action={formAction} className="space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="fullName" className="text-slate-700 font-medium">
+            Full Name
+          </Label>
+          <Input
+            id="fullName"
+            name="fullName"
+            type="text"
+            placeholder="Enter your full name"
+            required
+            className="h-12 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-slate-700 font-medium">
+            Institutional Email
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="user@mitsgwl.ac.in"
+            required
+            className="h-12 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
+          />
+          <p className="text-xs text-slate-500">
+            Use @mitsgwl.ac.in for students or @mitsgwalior.in for faculty
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-slate-700 font-medium">
+            Password
+          </Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            minLength={6}
+            className="h-12 border-slate-300 bg-white text-slate-900 focus:border-amber-500 focus:ring-amber-500 rounded-lg"
+          />
+          <p className="text-xs text-slate-500">
+            Minimum 6 characters
+          </p>
+        </div>
+        <Button 
+          type="submit" 
+          disabled={isPending}
+          className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg transition-all disabled:opacity-50"
+        >
+          {isPending ? 'Creating Account...' : 'Create Account'}
+        </Button>
+      </form>
+    </div>
   )
 }
 

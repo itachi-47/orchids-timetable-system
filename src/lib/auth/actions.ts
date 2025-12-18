@@ -149,21 +149,37 @@ export async function signup(formData: FormData) {
 export async function logout() {
   const cookieStore = await cookies()
   cookieStore.set({ name: process.env.AUTH_COOKIE_NAME || 'token', value: '', maxAge: 0, path: '/' })
+  cookieStore.set({ name: 'next-auth.session-token', value: '', maxAge: 0, path: '/' })
+  cookieStore.set({ name: '__Secure-next-auth.session-token', value: '', maxAge: 0, path: '/' })
   redirect('/login')
 }
 
 export async function getCurrentUser(): Promise<UserProfile | null> {
   const cookieStore = await cookies()
   const token = cookieStore.get(process.env.AUTH_COOKIE_NAME || 'token')?.value
-  if (!token) return null
+  
+  if (token) {
+    const payload = verifyToken(token)
+    if (payload) {
+      const db = await getDb()
+      const userData = await db
+        .collection<UserProfile>('users')
+        .findOne({ id: payload.id }, { projection: { _id: 0, password: 0 } })
+      return userData
+    }
+  }
 
-  const payload = verifyToken(token)
-  if (!payload) return null
+  const { getServerSession } = await import('next-auth')
+  const { authOptions } = await import('@/lib/auth/auth-options')
+  const session = await getServerSession(authOptions)
+  
+  if (session?.user?.email) {
+    const db = await getDb()
+    const userData = await db
+      .collection<UserProfile>('users')
+      .findOne({ email: session.user.email.toLowerCase() }, { projection: { _id: 0, password: 0 } })
+    return userData
+  }
 
-  const db = await getDb()
-  const userData = await db
-    .collection<UserProfile>('users')
-    .findOne({ id: payload.id }, { projection: { _id: 0, password: 0 } })
-
-  return userData
+  return null
 }
