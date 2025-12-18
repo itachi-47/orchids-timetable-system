@@ -13,17 +13,51 @@ const loginSchema = z.object({
   password: z.string().min(6),
 })
 
-const signupSchema = loginSchema.extend({
+const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
   fullName: z.string().min(2),
-  role: z.enum(['admin', 'student']),
 })
 
 export type UserProfile = {
   id: string
   email: string
   full_name: string
-  role: 'admin' | 'student'
+  role: 'admin' | 'student' | 'faculty'
   created_at?: string
+}
+
+function getRoleFromEmail(email: string): 'admin' | 'faculty' | 'student' {
+  const lowerEmail = email.toLowerCase()
+  
+  if (lowerEmail.endsWith('@mitsgwalior.in')) {
+    // Admin and faculty use @mitsgwalior.in
+    // Check if it's an admin email pattern (you can customize this)
+    if (lowerEmail.startsWith('admin') || lowerEmail.includes('.admin@')) {
+      return 'admin'
+    }
+    return 'faculty'
+  }
+  
+  if (lowerEmail.endsWith('@mitsgwl.ac.in')) {
+    return 'student'
+  }
+  
+  // Default to student for any other domain (for testing)
+  return 'student'
+}
+
+function validateEmailDomain(email: string): { valid: boolean; error?: string } {
+  const lowerEmail = email.toLowerCase()
+  
+  if (lowerEmail.endsWith('@mitsgwalior.in') || lowerEmail.endsWith('@mitsgwl.ac.in')) {
+    return { valid: true }
+  }
+  
+  return { 
+    valid: false, 
+    error: 'Please use your institutional email (@mitsgwalior.in for faculty/admin or @mitsgwl.ac.in for students)' 
+  }
 }
 
 export async function login(formData: FormData) {
@@ -75,13 +109,21 @@ export async function signup(formData: FormData) {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     fullName: formData.get('fullName') as string,
-    role: formData.get('role') as 'admin' | 'student',
   }
 
   const validated = signupSchema.safeParse(data)
   if (!validated.success) {
     return { error: 'Invalid form data' }
   }
+
+  // Validate email domain
+  const emailValidation = validateEmailDomain(validated.data.email)
+  if (!emailValidation.valid) {
+    return { error: emailValidation.error }
+  }
+
+  // Determine role from email
+  const role = getRoleFromEmail(validated.data.email)
 
   const db = await getDb()
   const existing = await db.collection('users').findOne({ email: validated.data.email })
@@ -96,7 +138,7 @@ export async function signup(formData: FormData) {
     id,
     email: validated.data.email,
     full_name: validated.data.fullName,
-    role: validated.data.role,
+    role,
     password: hashed,
     created_at: new Date().toISOString(),
   })

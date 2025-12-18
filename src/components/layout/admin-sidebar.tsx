@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   GraduationCap,
+  UserCheck,
 } from 'lucide-react'
 import { logout } from '@/lib/auth/actions'
 import {
@@ -44,6 +45,11 @@ const navItems = [
     title: 'Faculty',
     href: '/admin/faculty',
     icon: Users,
+  },
+  {
+    title: 'Students',
+    href: '/admin/students',
+    icon: UserCheck,
   },
   {
     title: 'Rooms',
