@@ -1,5 +1,5 @@
 const { MongoClient } = require('mongodb');
-const uri = 'mongodb+srv://Varun04:Varun%402005@sats1.dgzugvh.mongodb.net/?appName=SATS1';
+const uri = 'mongodb://localhost:27017';
 const client = new MongoClient(uri);
 
 async function run() {
