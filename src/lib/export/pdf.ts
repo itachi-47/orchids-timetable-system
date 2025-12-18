@@ -14,16 +14,45 @@ const TIME_SLOTS = [
   '16:00-17:00'
 ]
 
-export function exportTimetableToPDF(entries: TimetableEntry[], batchName: string) {
+interface OfficialTimetableOptions {
+  instituteName?: string
+  departmentName?: string
+  semester?: string
+  session?: string
+}
+
+export function exportTimetableToPDF(
+  entries: TimetableEntry[], 
+  batchName: string,
+  options?: OfficialTimetableOptions
+) {
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
     format: 'a4'
   })
   
-  doc.setFontSize(18)
+  const instituteName = options?.instituteName || 'Madhav Institute of Technology & Science'
+  const departmentName = options?.departmentName || 'Department of Computer Science & Engineering'
+  const semester = options?.semester || ''
+  const session = options?.session || new Date().getFullYear() + '-' + (new Date().getFullYear() + 1)
+
+  doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
-  doc.text(`${batchName} - Timetable`, 148, 15, { align: 'center' })
+  doc.text(instituteName, 148, 12, { align: 'center' })
+  
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'normal')
+  doc.text(departmentName, 148, 19, { align: 'center' })
+  
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text(`CLASS TIMETABLE - ${batchName}`, 148, 28, { align: 'center' })
+  
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  const infoText = semester ? `Semester: ${semester} | Session: ${session}` : `Session: ${session}`
+  doc.text(infoText, 148, 34, { align: 'center' })
   
   const tableData: any[][] = []
   
@@ -51,7 +80,7 @@ export function exportTimetableToPDF(entries: TimetableEntry[], batchName: strin
   autoTable(doc, {
     head: [['Time', ...DAYS]],
     body: tableData,
-    startY: 25,
+    startY: 40,
     theme: 'grid',
     headStyles: {
       fillColor: [126, 58, 242],
