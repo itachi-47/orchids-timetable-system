@@ -1,32 +1,32 @@
 import { getBatches } from '@/lib/batches/actions'
 import { getCourseTypes } from '@/lib/course-types/actions'
 import { BatchesManager } from '@/components/batches/batches-manager'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { getCurrentUser } from '@/lib/auth/actions'
+import { redirect } from 'next/navigation'
+import { AdminLayout } from '@/components/layout/admin-layout'
 
 export default async function BatchesPage() {
+  const user = await getCurrentUser()
+  
+  if (!user || user.role !== 'admin') {
+    redirect('/login')
+  }
+
   const [batches, courseTypes] = await Promise.all([
     getBatches(),
     getCourseTypes(),
   ])
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="mb-2 text-slate-600 hover:text-slate-900">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <h1 className="text-4xl font-semibold text-slate-900">Batches & Course Types</h1>
-          <p className="text-slate-600 mt-2">Manage student batches and course categories</p>
+    <AdminLayout user={user}>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Batches & Course Types</h1>
+          <p className="mt-1 text-slate-600">Manage student batches and course categories</p>
         </div>
 
         <BatchesManager batches={batches} courseTypes={courseTypes} />
       </div>
-    </div>
+    </AdminLayout>
   )
 }

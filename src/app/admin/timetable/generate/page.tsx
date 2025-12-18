@@ -1,26 +1,25 @@
 import { GenerateTimetableForm } from '@/components/timetable/generate-timetable-form'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { getCurrentUser } from '@/lib/auth/actions'
+import { redirect } from 'next/navigation'
+import { AdminLayout } from '@/components/layout/admin-layout'
 
-export default function GenerateTimetablePage() {
+export default async function GenerateTimetablePage() {
+  const user = await getCurrentUser()
+  
+  if (!user || user.role !== 'admin') {
+    redirect('/login')
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="text-slate-600 hover:text-slate-900">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Generate Timetable</h1>
-            <p className="text-slate-600">Configure subject-faculty mapping and generate timetable</p>
-          </div>
+    <AdminLayout user={user}>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Generate Timetable</h1>
+          <p className="mt-1 text-slate-600">Configure subject-faculty mapping and generate timetable</p>
         </div>
 
         <GenerateTimetableForm />
       </div>
-    </div>
+    </AdminLayout>
   )
 }

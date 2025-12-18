@@ -2,28 +2,31 @@ import { getRooms } from '@/lib/rooms/actions'
 import { RoomsList } from '@/components/rooms/rooms-list'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import { getCurrentUser } from '@/lib/auth/actions'
+import { redirect } from 'next/navigation'
+import { AdminLayout } from '@/components/layout/admin-layout'
 
 export default async function RoomsPage() {
+  const user = await getCurrentUser()
+  
+  if (!user || user.role !== 'admin') {
+    redirect('/login')
+  }
+
   const rooms = await getRooms()
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+    <AdminLayout user={user}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="mb-2 text-slate-600 hover:text-slate-900">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <h1 className="text-4xl font-semibold text-slate-900">Rooms Management</h1>
-            <p className="text-slate-600 mt-2">Manage classroom and lab rooms</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Rooms</h1>
+            <p className="mt-1 text-slate-600">Manage classrooms and lab rooms</p>
           </div>
           <Link href="/admin/rooms/create">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+              <Plus className="mr-2 h-4 w-4" />
               Add Room
             </Button>
           </Link>
@@ -31,6 +34,6 @@ export default async function RoomsPage() {
 
         <RoomsList rooms={rooms} />
       </div>
-    </div>
+    </AdminLayout>
   )
 }

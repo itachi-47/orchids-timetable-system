@@ -1,44 +1,39 @@
-import { getFaculty, getFacultyWorkload } from '@/lib/faculty/actions'
+import { getFaculty } from '@/lib/faculty/actions'
 import { FacultyList } from '@/components/faculty/faculty-list'
-import { FacultyWorkloadSummary } from '@/components/faculty/faculty-workload-summary'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import { getCurrentUser } from '@/lib/auth/actions'
+import { redirect } from 'next/navigation'
+import { AdminLayout } from '@/components/layout/admin-layout'
 
 export default async function FacultyPage() {
-  const [faculty, workload] = await Promise.all([getFaculty(), getFacultyWorkload()])
+  const user = await getCurrentUser()
+  
+  if (!user || user.role !== 'admin') {
+    redirect('/login')
+  }
+
+  const faculty = await getFaculty()
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="container mx-auto space-y-6 px-4 py-6 sm:py-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <AdminLayout user={user}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <Link href="/dashboard">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mb-2 text-slate-600 hover:text-slate-900"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">Faculty Management</h1>
-            <p className="mt-2 text-slate-600">Manage faculty members</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Faculty</h1>
+            <p className="mt-1 text-slate-600">Manage faculty members and their information</p>
           </div>
-
-          <Link href="/admin/faculty/create" className="w-full sm:w-auto">
-            <Button className="w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto">
+          <Link href="/admin/faculty/create">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
               <Plus className="mr-2 h-4 w-4" />
               Add Faculty
             </Button>
           </Link>
         </div>
 
-        <FacultyWorkloadSummary workload={workload} />
-
         <FacultyList faculty={faculty} />
       </div>
-    </div>
+    </AdminLayout>
   )
 }

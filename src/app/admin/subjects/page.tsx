@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button'
 import { SubjectsList } from '@/components/subjects/subjects-list'
 import { getSubjects } from '@/lib/subjects/actions'
-import { Plus, ArrowLeft } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { redirect } from 'next/navigation'
+import { AdminLayout } from '@/components/layout/admin-layout'
 
 export default async function SubjectsPage() {
   const user = await getCurrentUser()
@@ -16,30 +17,23 @@ export default async function SubjectsPage() {
   const subjects = await getSubjects()
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white shadow-sm">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <h1 className="text-2xl font-semibold text-slate-900">Subjects</h1>
+    <AdminLayout user={user}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Subjects</h1>
+            <p className="mt-1 text-slate-600">Manage course subjects and their details</p>
           </div>
           <Link href="/admin/subjects/create">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
               <Plus className="mr-2 h-4 w-4" />
               Add Subject
             </Button>
           </Link>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
         <SubjectsList subjects={subjects} />
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   )
 }
