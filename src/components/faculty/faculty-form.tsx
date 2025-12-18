@@ -11,11 +11,13 @@ import { createFaculty, updateFaculty, type Faculty } from '@/lib/faculty/action
 type FacultyFormProps = {
   faculty?: Faculty
   mode: 'create' | 'edit'
+  isAdmin?: boolean
 }
 
-export function FacultyForm({ faculty, mode }: FacultyFormProps) {
+export function FacultyForm({ faculty, mode, isAdmin = true }: FacultyFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const basePath = isAdmin ? '/admin' : '/coordinator'
   const [formData, setFormData] = useState({
     faculty_name: faculty?.faculty_name || '',
     short_code: faculty?.short_code || '',
@@ -31,7 +33,7 @@ export function FacultyForm({ faculty, mode }: FacultyFormProps) {
       } else {
         await updateFaculty(faculty!.id, formData)
       }
-      router.push('/admin/faculty')
+      router.push(`${basePath}/faculty`)
       router.refresh()
     } catch (error) {
       console.error('Error saving faculty:', error)
@@ -85,14 +87,15 @@ export function FacultyForm({ faculty, mode }: FacultyFormProps) {
             >
               {loading ? 'Saving...' : mode === 'create' ? 'Create Faculty' : 'Update Faculty'}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline"
-              onClick={() => router.push('/admin/faculty')}
-              className="border-slate-300 text-slate-700 hover:bg-slate-50"
-            >
-              Cancel
-            </Button>
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => router.push(`${basePath}/faculty`)}
+                className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </Button>
+
           </div>
         </form>
       </CardContent>

@@ -13,9 +13,10 @@ import { createCourseType, deleteCourseType, type CourseType } from '@/lib/cours
 type BatchesManagerProps = {
   batches: Batch[]
   courseTypes: CourseType[]
+  isAdmin?: boolean
 }
 
-export function BatchesManager({ batches, courseTypes }: BatchesManagerProps) {
+export function BatchesManager({ batches, courseTypes, isAdmin = true }: BatchesManagerProps) {
   const router = useRouter()
   const [newBatch, setNewBatch] = useState('')
   const [newCourseType, setNewCourseType] = useState('')
@@ -127,16 +128,19 @@ export function BatchesManager({ batches, courseTypes }: BatchesManagerProps) {
                     className="flex items-center justify-between rounded-lg border border-slate-300 bg-white p-3"
                 >
                     <span className="text-slate-900">{batch.batch_name}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteBatch(batch.id)}
-                      disabled={deleting === batch.id}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
+                    {isAdmin && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeleteBatch(batch.id)}
+                        disabled={deleting === batch.id}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
               ))
             )}
           </div>
@@ -182,16 +186,19 @@ export function BatchesManager({ batches, courseTypes }: BatchesManagerProps) {
                     className="flex items-center justify-between rounded-lg border border-slate-300 bg-white p-3"
                 >
                     <span className="text-slate-900">{courseType.course_type_name}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteCourseType(courseType.id)}
-                      disabled={deleting === courseType.id}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
+                    {isAdmin && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeleteCourseType(courseType.id)}
+                        disabled={deleting === courseType.id}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
               ))
             )}
           </div>

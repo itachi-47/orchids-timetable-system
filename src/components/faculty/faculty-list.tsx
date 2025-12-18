@@ -9,11 +9,13 @@ import { deleteFaculty, type Faculty } from '@/lib/faculty/actions'
 
 type FacultyListProps = {
   faculty: Faculty[]
+  isAdmin?: boolean
 }
 
-export function FacultyList({ faculty }: FacultyListProps) {
+export function FacultyList({ faculty, isAdmin = true }: FacultyListProps) {
   const router = useRouter()
   const [deleting, setDeleting] = useState<string | null>(null)
+  const basePath = isAdmin ? '/admin' : '/coordinator'
 
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this faculty?')) return
@@ -48,26 +50,29 @@ export function FacultyList({ faculty }: FacultyListProps) {
             <CardTitle className="text-slate-900">{item.faculty_name}</CardTitle>
             <CardDescription className="text-slate-600">Code: {item.short_code}</CardDescription>
           </CardHeader>
-          <CardContent className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => router.push(`/admin/faculty/${item.id}/edit`)}
-              className="border-slate-300 text-slate-700 hover:bg-slate-100"
-            >
-              <Pencil className="h-4 w-4 mr-1" />
-              Edit
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleDelete(item.id)}
-              disabled={deleting === item.id}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              {deleting === item.id ? 'Deleting...' : 'Delete'}
-            </Button>
-          </CardContent>
+            <CardContent className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => router.push(`${basePath}/faculty/${item.id}/edit`)}
+                className="border-slate-300 text-slate-700 hover:bg-slate-100"
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+                Edit
+              </Button>
+              {isAdmin && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDelete(item.id)}
+                  disabled={deleting === item.id}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  {deleting === item.id ? 'Deleting...' : 'Delete'}
+                </Button>
+              )}
+            </CardContent>
+
         </Card>
       ))}
     </div>

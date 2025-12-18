@@ -11,12 +11,14 @@ import { useRouter } from 'next/navigation'
 type SubjectFormProps = {
   subject?: Subject
   mode: 'create' | 'edit'
+  isAdmin?: boolean
 }
 
-export function SubjectForm({ subject, mode }: SubjectFormProps) {
+export function SubjectForm({ subject, mode, isAdmin = true }: SubjectFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const basePath = isAdmin ? '/admin' : '/coordinator'
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -32,7 +34,7 @@ export function SubjectForm({ subject, mode }: SubjectFormProps) {
         await updateSubject(subject.id, formData)
       }
 
-      router.push('/admin/subjects')
+      router.push(`${basePath}/subjects`)
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')

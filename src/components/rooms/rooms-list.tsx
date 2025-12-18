@@ -9,11 +9,13 @@ import { deleteRoom, type Room } from '@/lib/rooms/actions'
 
 type RoomsListProps = {
   rooms: Room[]
+  isAdmin?: boolean
 }
 
-export function RoomsList({ rooms }: RoomsListProps) {
+export function RoomsList({ rooms, isAdmin = true }: RoomsListProps) {
   const router = useRouter()
   const [deleting, setDeleting] = useState<string | null>(null)
+  const basePath = isAdmin ? '/admin' : '/coordinator'
 
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this room?')) return
@@ -48,26 +50,29 @@ export function RoomsList({ rooms }: RoomsListProps) {
             <CardTitle className="text-slate-900">Room {room.room_number}</CardTitle>
             <CardDescription className="text-slate-600">ID: {room.id.slice(0, 8)}</CardDescription>
           </CardHeader>
-          <CardContent className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => router.push(`/admin/rooms/${room.id}/edit`)}
-              className="border-slate-300 text-slate-700 hover:bg-slate-100"
-            >
-              <Pencil className="h-4 w-4 mr-1" />
-              Edit
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleDelete(room.id)}
-              disabled={deleting === room.id}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              {deleting === room.id ? 'Deleting...' : 'Delete'}
-            </Button>
-          </CardContent>
+            <CardContent className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => router.push(`${basePath}/rooms/${room.id}/edit`)}
+                className="border-slate-300 text-slate-700 hover:bg-slate-100"
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+                Edit
+              </Button>
+              {isAdmin && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDelete(room.id)}
+                  disabled={deleting === room.id}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  {deleting === room.id ? 'Deleting...' : 'Delete'}
+                </Button>
+              )}
+            </CardContent>
+
         </Card>
       ))}
     </div>

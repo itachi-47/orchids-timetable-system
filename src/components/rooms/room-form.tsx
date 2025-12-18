@@ -11,11 +11,13 @@ import { createRoom, updateRoom, type Room } from '@/lib/rooms/actions'
 type RoomFormProps = {
   room?: Room
   mode: 'create' | 'edit'
+  isAdmin?: boolean
 }
 
-export function RoomForm({ room, mode }: RoomFormProps) {
+export function RoomForm({ room, mode, isAdmin = true }: RoomFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const basePath = isAdmin ? '/admin' : '/coordinator'
   const [formData, setFormData] = useState({
     room_number: room?.room_number || '',
   })
@@ -30,7 +32,7 @@ export function RoomForm({ room, mode }: RoomFormProps) {
       } else {
         await updateRoom(room!.id, formData)
       }
-      router.push('/admin/rooms')
+      router.push(`${basePath}/rooms`)
       router.refresh()
     } catch (error) {
       console.error('Error saving room:', error)
@@ -72,14 +74,15 @@ export function RoomForm({ room, mode }: RoomFormProps) {
             >
               {loading ? 'Saving...' : mode === 'create' ? 'Create Room' : 'Update Room'}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline"
-              onClick={() => router.push('/admin/rooms')}
-              className="border-slate-300 text-slate-700 hover:bg-slate-50"
-            >
-              Cancel
-            </Button>
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => router.push(`${basePath}/rooms`)}
+                className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </Button>
+
           </div>
         </form>
       </CardContent>

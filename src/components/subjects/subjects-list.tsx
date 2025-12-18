@@ -10,11 +10,13 @@ import { useRouter } from 'next/navigation'
 
 type SubjectsListProps = {
   subjects: Subject[]
+  isAdmin?: boolean
 }
 
-export function SubjectsList({ subjects }: SubjectsListProps) {
+export function SubjectsList({ subjects, isAdmin = true }: SubjectsListProps) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const basePath = isAdmin ? '/admin' : '/coordinator'
 
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this subject?')) return
@@ -47,26 +49,29 @@ export function SubjectsList({ subjects }: SubjectsListProps) {
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-slate-900">
               <span>{subject.subject_code}</span>
-              <div className="flex gap-2">
-                <Link href={`/admin/subjects/${subject.id}/edit`}>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0 text-slate-600 hover:text-blue-600"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleDelete(subject.id)}
-                  disabled={deletingId === subject.id}
-                  className="h-8 w-8 p-0 text-slate-600 hover:text-red-600"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+                <div className="flex gap-2">
+                  <Link href={`${basePath}/subjects/${subject.id}/edit`}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-slate-600 hover:text-blue-600"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  {isAdmin && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(subject.id)}
+                      disabled={deletingId === subject.id}
+                      className="h-8 w-8 p-0 text-slate-600 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
