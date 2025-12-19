@@ -38,6 +38,7 @@ export async function createCourseType(input: CourseTypeInput) {
   })
 
   revalidatePath('/admin/batches')
+  revalidatePath('/coordinator/batches')
 }
 
 export async function deleteCourseType(id: string) {
@@ -45,4 +46,5 @@ export async function deleteCourseType(id: string) {
   await db.collection<CourseType>('course_types').deleteOne({ id })
 
   revalidatePath('/admin/batches')
+  revalidatePath('/coordinator/batches')
 }

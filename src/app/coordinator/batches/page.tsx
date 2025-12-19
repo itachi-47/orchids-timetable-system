@@ -25,7 +25,7 @@ export default async function CoordinatorBatchesPage() {
           <p className="mt-1 text-slate-600">Manage student batches and course categories</p>
         </div>
 
-        <BatchesManager batches={batches} courseTypes={courseTypes} isAdmin={false} />
+        <BatchesManager batches={batches} courseTypes={courseTypes} isAdmin={true} />
       </div>
     </CoordinatorLayout>
   )

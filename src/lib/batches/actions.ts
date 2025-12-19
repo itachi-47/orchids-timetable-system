@@ -38,6 +38,7 @@ export async function createBatch(input: BatchInput) {
 
   revalidatePath('/admin/batches')
   revalidatePath('/admin/timetable')
+  revalidatePath('/coordinator/batches')
   revalidatePath('/student')
 }
 
@@ -47,5 +48,6 @@ export async function deleteBatch(id: string) {
 
   revalidatePath('/admin/batches')
   revalidatePath('/admin/timetable')
+  revalidatePath('/coordinator/batches')
   revalidatePath('/student')
 }
