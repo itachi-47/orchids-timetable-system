@@ -2,11 +2,12 @@ import { getCurrentUser } from '@/lib/auth/actions'
 import { redirect } from 'next/navigation'
 import { CoordinatorLayout } from '@/components/layout/coordinator-layout'
 import { getTimetableDraftById, getDraftSlots } from '@/lib/timetable-drafts/actions'
-import { TimetableView } from '@/components/timetable/timetable-view'
+import { TimetableGrid } from '@/components/timetable/timetable-grid'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { FileText, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react'
 import type { TimetableStatus } from '@/types'
+import type { TimetableEntry } from '@/lib/timetable/types'
 
 const statusConfig: Record<TimetableStatus, { icon: React.ElementType; label: string; className: string }> = {
   DRAFT: { icon: FileText, label: 'Draft', className: 'bg-slate-100 text-slate-700' },
@@ -30,6 +31,7 @@ export default async function DraftViewPage({ params }: { params: Promise<{ id: 
   }
 
   const slots = await getDraftSlots(id)
+  const entries = slots as unknown as TimetableEntry[]
 
   const config = statusConfig[draft.status]
   const StatusIcon = config.icon
@@ -93,7 +95,7 @@ export default async function DraftViewPage({ params }: { params: Promise<{ id: 
           </CardContent>
         </Card>
 
-        <TimetableView slots={slots} />
+        <TimetableGrid entries={entries} batchName={draft.name} />
       </div>
     </CoordinatorLayout>
   )
