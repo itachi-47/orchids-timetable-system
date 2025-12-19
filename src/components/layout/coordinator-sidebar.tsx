@@ -30,11 +30,12 @@ import {
 import { Button } from '@/components/ui/button'
 
 const navItems = [
-  {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
+    {
+      title: 'Dashboard',
+      href: '/coordinator/dashboard',
+      icon: LayoutDashboard,
+    },
+
   {
     title: 'Subjects',
     href: '/coordinator/subjects',
@@ -83,7 +84,7 @@ export function CoordinatorSidebar({ user }: { user: User }) {
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200">
       <SidebarHeader className="border-b border-slate-200 px-4 py-4">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href="/coordinator/dashboard" className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-600 to-emerald-600">
             <GraduationCap className="h-5 w-5 text-white" />
           </div>

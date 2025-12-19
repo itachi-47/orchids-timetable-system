@@ -2,7 +2,7 @@ import { getCurrentUser } from '@/lib/auth/actions'
 import { redirect } from 'next/navigation'
 import { CoordinatorLayout } from '@/components/layout/coordinator-layout'
 import { getTimetableDraftById, getDraftSlots } from '@/lib/timetable-drafts/actions'
-import { TimetableView } from '@/components/timetable/timetable-view'
+import { TimetableGrid } from '@/components/timetable/timetable-grid'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { FileText, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react'
@@ -93,7 +93,8 @@ export default async function DraftViewPage({ params }: { params: Promise<{ id: 
           </CardContent>
         </Card>
 
-        <TimetableView slots={slots} />
+          <TimetableGrid entries={slots} />
+
       </div>
     </CoordinatorLayout>
   )

@@ -26,11 +26,12 @@ import {
 import { Button } from '@/components/ui/button'
 
 const navItems = [
-  {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
+    {
+      title: 'Dashboard',
+      href: '/faculty/dashboard',
+      icon: LayoutDashboard,
+    },
+
   {
     title: 'My Schedule',
     href: '/faculty/schedule',
@@ -56,7 +57,7 @@ export function FacultySidebar({ user }: { user: User }) {
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200">
       <SidebarHeader className="border-b border-slate-200 px-4 py-4">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href="/faculty/dashboard" className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
             <GraduationCap className="h-5 w-5 text-white" />
           </div>

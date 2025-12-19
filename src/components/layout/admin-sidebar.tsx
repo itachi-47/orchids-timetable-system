@@ -33,11 +33,12 @@ import {
 import { Button } from '@/components/ui/button'
 
 const navItems = [
-  {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
+    {
+      title: 'Dashboard',
+      href: '/admin/dashboard',
+      icon: LayoutDashboard,
+    },
+
   {
     title: 'Departments',
     href: '/admin/departments',
@@ -101,7 +102,7 @@ export function AdminSidebar({ user }: { user: User }) {
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200">
       <SidebarHeader className="border-b border-slate-200 px-4 py-4">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href="/admin/dashboard" className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600">
             <GraduationCap className="h-5 w-5 text-white" />
           </div>

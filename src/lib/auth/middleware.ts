@@ -2,14 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { verifyToken } from './jwt'
 import type { UserRole } from '@/types'
-
-const ROLE_ROUTES: Record<string, UserRole[]> = {
-  '/admin': ['admin'],
-  '/hod': ['hod', 'admin'],
-  '/coordinator': ['timetable_coordinator', 'admin'],
-  '/faculty': ['faculty', 'hod', 'timetable_coordinator', 'admin'],
-  '/student': ['student'],
-}
+import { ROLE_PERMISSIONS, getDashboardRoute } from './roles'
 
 export async function updateSession(request: NextRequest) {
   const authCookieName = process.env.AUTH_COOKIE_NAME || 'token'
@@ -27,7 +20,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/login') ||
     pathname.startsWith('/signup') ||
     pathname.startsWith('/api/auth') ||
-    pathname === '/'
+    pathname === '/' ||
+    pathname === '/unauthorized'
 
   if (!isAuthenticated && !isPublicPath) {
     const url = request.nextUrl.clone()
@@ -35,7 +29,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (isAuthenticated && !isPublicPath) {
+  if (isAuthenticated) {
     let userRole: UserRole | undefined
 
     if (jwtToken) {
@@ -46,11 +40,19 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (userRole) {
-      for (const [routePrefix, allowedRoles] of Object.entries(ROLE_ROUTES)) {
+      // If user is logged in and tries to access login/signup, redirect to dashboard
+      if (isPublicPath && (pathname === '/login' || pathname === '/signup')) {
+        const url = request.nextUrl.clone()
+        url.pathname = getDashboardRoute(userRole)
+        return NextResponse.redirect(url)
+      }
+
+      // Check route permissions
+      for (const [routePrefix, allowedRoles] of Object.entries(ROLE_PERMISSIONS)) {
         if (pathname.startsWith(routePrefix)) {
           if (!allowedRoles.includes(userRole)) {
             const url = request.nextUrl.clone()
-            url.pathname = '/dashboard'
+            url.pathname = '/unauthorized'
             return NextResponse.redirect(url)
           }
           break

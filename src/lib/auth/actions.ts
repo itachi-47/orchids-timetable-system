@@ -7,6 +7,8 @@ import bcrypt from 'bcryptjs'
 import { signToken, verifyToken, type TokenPayload } from '@/lib/auth/jwt'
 import { cookies } from 'next/headers'
 import { ObjectId } from 'mongodb'
+import type { UserRole } from '@/types'
+import { getDashboardRoute } from './roles'
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -18,8 +20,6 @@ const signupSchema = z.object({
   password: z.string().min(6),
   fullName: z.string().min(2),
 })
-
-import type { UserRole } from '@/types'
 
 export type UserProfile = {
   id: string
@@ -102,7 +102,7 @@ export async function login(formData: FormData) {
     secure: process.env.NODE_ENV === 'production',
   })
 
-  redirect('/dashboard')
+  redirect(getDashboardRoute(user.role as UserRole))
 }
 
 export async function signup(prevState: { error?: string } | null, formData: FormData) {
