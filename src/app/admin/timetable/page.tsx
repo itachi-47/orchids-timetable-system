@@ -64,18 +64,20 @@ export default async function TimetablePage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {groupedByBatch.map(({ batch, entries }) => (
-              <TimetableGrid
-                key={batch.id}
-                entries={entries}
-                batchName={batch.batch_name}
-                batchId={batch.id}
-                editable
-                subjects={subjects ?? []}
-                faculty={faculty ?? []}
-                rooms={rooms ?? []}
-              />
-            ))}
+              {groupedByBatch.map(({ batch, entries }) => (
+                <TimetableGrid
+                  key={batch.id}
+                  entries={entries}
+                  allEntries={timetableData}
+                  batchName={batch.batch_name}
+                  batchId={batch.id}
+                  editable
+                  subjects={subjects ?? []}
+                  faculty={faculty ?? []}
+                  rooms={rooms ?? []}
+                />
+              ))}
+
           </div>
         )}
       </div>

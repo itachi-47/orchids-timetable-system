@@ -46,17 +46,17 @@ const navItems = [
     href: '/coordinator/faculty',
     icon: Users,
   },
-  {
-    title: 'Rooms',
-    href: '/coordinator/rooms',
-    icon: DoorOpen,
-  },
-  {
-    title: 'Batches',
-    href: '/coordinator/batches',
-    icon: School,
-  },
-]
+    {
+      title: 'Rooms',
+      href: '/coordinator/rooms',
+      icon: DoorOpen,
+    },
+    {
+      title: 'Batches',
+      href: '/coordinator/batches',
+      icon: School,
+    },
+  ]
 
 const timetableItems = [
   {

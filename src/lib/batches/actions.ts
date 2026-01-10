@@ -7,11 +7,15 @@ import { revalidatePath } from 'next/cache'
 export type Batch = {
   id: string
   batch_name: string
+  semester?: string
+  department_id?: string
   created_at?: string
 }
 
 export type BatchInput = {
   batch_name: string
+  semester?: string
+  department_id?: string
 }
 
 export async function getBatches() {
@@ -33,6 +37,8 @@ export async function createBatch(input: BatchInput) {
   await db.collection<Batch>('batches').insertOne({
     id: randomUUID(),
     batch_name,
+    semester: input.semester,
+    department_id: input.department_id,
     created_at: new Date().toISOString(),
   })
 

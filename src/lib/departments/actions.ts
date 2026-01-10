@@ -6,13 +6,18 @@ import { revalidatePath } from 'next/cache'
 import type { Department } from '@/types'
 
 export async function getDepartments(): Promise<Department[]> {
-  const db = await getDb()
-  const data = await db
-    .collection<Department>('departments')
-    .find({}, { projection: { _id: 0 } })
-    .sort({ name: 1 })
-    .toArray()
-  return data
+  try {
+    const db = await getDb()
+    const data = await db
+      .collection<Department>('departments')
+      .find({}, { projection: { _id: 0 } })
+      .sort({ name: 1 })
+      .toArray()
+    return data || []
+  } catch (error) {
+    console.error('Error fetching departments:', error)
+    return []
+  }
 }
 
 export async function getDepartmentById(id: string): Promise<Department | null> {

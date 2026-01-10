@@ -4,12 +4,12 @@ import { getDepartments } from '@/lib/departments/actions'
 import { BatchesManager } from '@/components/batches/batches-manager'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { redirect } from 'next/navigation'
-import { AdminLayout } from '@/components/layout/admin-layout'
+import { HODLayout } from '@/components/layout/hod-layout'
 
-export default async function BatchesPage() {
+export default async function HODBatchesPage() {
   const user = await getCurrentUser()
   
-  if (!user || user.role !== 'admin') {
+  if (!user || user.role !== 'hod') {
     redirect('/login')
   }
 
@@ -20,19 +20,20 @@ export default async function BatchesPage() {
   ])
 
   return (
-    <AdminLayout user={user}>
+    <HODLayout user={user}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Batches & Course Types</h1>
-          <p className="mt-1 text-slate-600 dark:text-slate-400">Manage student batches and course categories</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Batches & Course Types</h1>
+          <p className="mt-1 text-slate-600">Manage student batches and course categories</p>
         </div>
 
         <BatchesManager 
           batches={batches} 
           courseTypes={courseTypes} 
           departments={departments}
+          isAdmin={true} 
         />
       </div>
-    </AdminLayout>
+    </HODLayout>
   )
 }

@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts', 'date-fns', 'clsx', 'tailwind-merge'],
+  },
   turbopack: {
     rules: {
       "*.{jsx,tsx}": {

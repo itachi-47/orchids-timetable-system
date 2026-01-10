@@ -64,17 +64,12 @@ const navItems = [
     href: '/admin/students',
     icon: UserCheck,
   },
-  {
-    title: 'Rooms',
-    href: '/admin/rooms',
-    icon: DoorOpen,
-  },
-  {
-    title: 'Batches',
-    href: '/admin/batches',
-    icon: School,
-  },
-]
+    {
+      title: 'Rooms',
+      href: '/admin/rooms',
+      icon: DoorOpen,
+    },
+  ]
 
 const timetableItems = [
   {

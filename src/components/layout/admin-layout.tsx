@@ -19,7 +19,7 @@ export function AdminLayout({
   return (
     <SidebarProvider>
       <AdminSidebar user={user} />
-      <SidebarInset className="bg-slate-50">
+      <SidebarInset className="bg-slate-50 dark:bg-slate-900/50">
         <AdminHeader />
         <main className="flex-1 overflow-auto p-6">{children}</main>
       </SidebarInset>

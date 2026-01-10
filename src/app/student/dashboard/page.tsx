@@ -7,5 +7,5 @@ export default async function StudentDashboardPage() {
   if (!user) redirect('/login')
   if (user.role !== 'student') redirect('/dashboard')
   
-  return <StudentDashboard user={user} />
+  redirect('/student/timetable')
 }

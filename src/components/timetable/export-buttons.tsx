@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { FileDown, FileSpreadsheet } from 'lucide-react'
+import { FileDown, FileSpreadsheet, Calendar as CalendarIcon } from 'lucide-react'
 import { TimetableEntry } from '@/lib/timetable/types'
 import type { OfficialTimetableOptions } from '@/lib/export/pdf'
 
@@ -34,24 +34,42 @@ export function ExportButtons({ entries, batchName, variant = 'single', allTimet
     }
   }
 
+  const handleICSExport = async () => {
+    const { exportTimetableToICS } = await import('@/lib/export/calendar')
+    exportTimetableToICS(entries, batchName)
+  }
+
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       <Button
         onClick={handleExcelExport}
         variant="outline"
-        className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+        size="sm"
+        className="border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
       >
         <FileSpreadsheet className="mr-2 h-4 w-4" />
-        Export Excel
+        Excel
       </Button>
       <Button
         onClick={handlePDFExport}
         variant="outline"
-        className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+        size="sm"
+        className="border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-400 dark:hover:bg-rose-900/30"
       >
         <FileDown className="mr-2 h-4 w-4" />
-        Export PDF
+        PDF
       </Button>
+      {variant === 'single' && (
+        <Button
+          onClick={handleICSExport}
+          variant="outline"
+          size="sm"
+          className="border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/30"
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          Add to Calendar
+        </Button>
+      )}
     </div>
   )
 }
