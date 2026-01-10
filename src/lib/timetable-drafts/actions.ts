@@ -3,6 +3,7 @@
 import { getDb } from '@/lib/mongodb/client'
 import { randomUUID } from 'crypto'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import type { TimetableDraft, TimetableDraftSlot, TimetableStatus, ApprovalHistory, DayOfWeek, TimeSlot } from '@/types'
 import { TimetableGenerator } from '@/lib/timetable/generator'
 import type { Batch, Faculty, Room, Subject, TimetableSlot } from '@/lib/timetable/types'
@@ -294,20 +295,24 @@ export async function publishTimetable(draftId: string, hodId: string) {
     )
   }
 
-  await db.collection<TimetableDraft>('timetable_drafts').updateOne(
-    { id: draftId },
-    { 
-      $set: { 
-        published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      } 
-    }
-  )
+    await db.collection<TimetableDraft>('timetable_drafts').updateOne(
+      { id: draftId },
+      { 
+        $set: { 
+          status: 'PUBLISHED',
+          published_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } 
+      }
+    )
 
-  revalidatePath('/hod')
-  revalidatePath('/faculty')
-  revalidatePath('/student')
-  revalidatePath('/admin/timetable')
+    revalidatePath('/hod')
+    revalidatePath('/hod/published')
+    revalidatePath('/faculty')
+    revalidatePath('/student')
+    revalidatePath('/admin/timetable')
+    
+    redirect('/hod/published')
 }
 
 export async function updateDraftSlot(input: {

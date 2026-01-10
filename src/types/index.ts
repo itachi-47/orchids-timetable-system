@@ -1,6 +1,6 @@
 export type UserRole = 'admin' | 'hod' | 'timetable_coordinator' | 'faculty' | 'student'
 
-export type TimetableStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
+export type TimetableStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PUBLISHED'
 
 export interface User {
   id: string

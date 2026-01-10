@@ -23,9 +23,9 @@ export default async function HODPublishedPage() {
     getUsers(),
   ])
 
-  // Fetch drafts that have a published_at date
+  // Fetch drafts that have a published status
   const drafts = await (await db).collection('timetable_drafts')
-    .find({ published_at: { $exists: true } }, { projection: { _id: 0 } })
+    .find({ status: 'PUBLISHED' }, { projection: { _id: 0 } })
     .sort({ published_at: -1 })
     .toArray()
 
